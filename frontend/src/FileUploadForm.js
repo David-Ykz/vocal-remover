@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 
 const FileUploadForm = ({ onFileUpload }) => {
+    const serverUrl = 'http://localhost:8000/api/';
+    const testUrl = serverUrl + 'test/';
+    const uploadUrl = serverUrl + 'upload/';
+
     const [file, setFile] = useState(null);
     const [uploadProgress, setUploadProgress] = useState(0);
 
@@ -9,16 +14,21 @@ const FileUploadForm = ({ onFileUpload }) => {
     };
 
     const testConn = async () => {
-        try {
-            const response = await fetch('http://localhost:8000/api/test/', {
-                method: 'GET',
+        axios.post(testUrl, 'abc').then(res => {
+            const data = res.data;
+            console.log(data);
+        })
+    }
 
-            });
-            const data = await response.json();
-            console.log(data); // Handle response from backend
-        } catch (error) {
-            console.error('Error:', error);
-        }
+    const testHandleUpload = async () => {
+        const formData = new FormData();
+        formData.append('message', 'test');
+        const response = await fetch('http://localhost:8000/api/upload/', {
+            method: 'POST',
+            body: formData,
+        });
+        const data = await response.json();
+        console.log(data); // Handle response from backend
     }
 
     const handleUpload = async () => {
@@ -46,7 +56,7 @@ const FileUploadForm = ({ onFileUpload }) => {
     return (
         <div>
             <input type="file" onChange={handleFileChange} />
-            <button onClick={handleUpload}>Upload</button>
+            <button onClick={testHandleUpload}>Upload</button>
             <button onClick={testConn}>Test</button>
             {uploadProgress > 0 && (
                 <div>
