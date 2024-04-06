@@ -4,5 +4,5 @@ from . import views
 
 urlpatterns = [
     path('test/', views.testConnection),
-    path('upload/', views.handleFile),
+    path('upload/', views.handleFileUpload),
 ]

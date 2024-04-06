@@ -7,7 +7,6 @@ const FileUploadForm = ({ onFileUpload }) => {
     const uploadUrl = serverUrl + 'upload/';
 
     const [file, setFile] = useState(null);
-    const [uploadProgress, setUploadProgress] = useState(0);
 
     const handleFileChange = (e) => {
         setFile(e.target.files[0]);
@@ -36,34 +35,21 @@ const FileUploadForm = ({ onFileUpload }) => {
         formData.append('file', file);
 
         try {
-            const response = await fetch('http://localhost:8000/api/upload/', {
-                method: 'POST',
-                body: formData,
-                // Report progress of upload
-                onUploadProgress: (progressEvent) => {
-                    const { loaded, total } = progressEvent;
-                    const progress = Math.round((loaded / total) * 100);
-                    setUploadProgress(progress);
-                },
+            const response = await axios.post('http://localhost:8000/api/upload/', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'  // Ensure correct content type
+                }
             });
-            const data = await response.json();
-            console.log(data); // Handle response from backend
+            console.log(response.data);  // Handle response from backend
         } catch (error) {
             console.error('Error uploading file:', error);
         }
     };
-
     return (
         <div>
             <input type="file" onChange={handleFileChange} />
-            <button onClick={testHandleUpload}>Upload</button>
+            <button onClick={handleUpload}>Upload</button>
             <button onClick={testConn}>Test</button>
-            {uploadProgress > 0 && (
-                <div>
-                    <p>Uploading: {uploadProgress}%</p>
-                    <progress value={uploadProgress} max="100" />
-                </div>
-            )}
         </div>
     );
 };
