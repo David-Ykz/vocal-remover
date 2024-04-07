@@ -1,3 +1,5 @@
+import base64
+
 from django.shortcuts import render
 import demucs.separate # requires "pip install soundfile"
 import os
@@ -52,16 +54,19 @@ def handleFileUpload(request):
         no_vocals_file_path = 'separated/mdx_extra/audio/no_vocals.mp3'
 
         if os.path.exists(vocals_file_path) and os.path.exists(no_vocals_file_path):
-            with open(vocals_file_path, 'rb') as vocals_file, open(no_vocals_file_path, 'rb') as no_vocals_file:
-                vocals_data = vocals_file.read()
-                no_vocals_data = no_vocals_file.read()
+            with open(vocals_file_path, 'rb') as vocalsFile, open(no_vocals_file_path, 'rb') as noVocalsFile:
+                vocalsData = vocalsFile.read()
+                noVocalsData = noVocalsFile.read()
 
-                response_data = {
-                    'vocals': str(vocals_data),
-                    'no_vocals': str(no_vocals_data)
-                }
+            vocalsString = base64.b64encode(vocalsData).decode('utf-8')
+            noVocalsString = base64.b64encode(noVocalsData).decode('utf-8')
 
-                return JsonResponse(response_data)
+            response_data = {
+                'vocals': vocalsString,
+                'no_vocals': noVocalsString
+            }
+
+            return JsonResponse(response_data)
         else:
             return JsonResponse({'error': 'Separated audio files not found'}, status=404)
 

@@ -1,33 +1,50 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import axios from 'axios';
 
 const FileUploadForm = ({ onFileUpload }) => {
+
+
+
     const serverUrl = 'http://localhost:8000/api/';
     const testUrl = serverUrl + 'test/';
     const uploadUrl = serverUrl + 'upload/';
 
     const [file, setFile] = useState(null);
 
+    const [vocalsUrl, setVocalsUrl] = useState('');
+    const [noVocalsUrl, setNoVocalsUrl] = useState('');
+
+    function base64ToBlob(base64String, mimeType) {
+        const binaryString = atob(base64String);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        return new Blob([bytes], { type: mimeType });
+    }
+
+    const createAudioUrl = (audioData, setAudioUrl) => {
+        console.log("creating audio" + audioData.length);
+        try {
+            const blob = base64ToBlob(audioData, 'audio/mp3');
+            console.log(blob);
+            const url = URL.createObjectURL(blob);
+            setAudioUrl(url);
+        } catch (error) {
+            console.error('Error creating audio URL:', error);
+        }
+    };
+
     const handleFileChange = (e) => {
         setFile(e.target.files[0]);
     };
 
     const testConn = async () => {
+        console.log(vocalsUrl);
         axios.post(testUrl, 'abc').then(res => {
             const data = res.data;
             console.log(data);
         })
-    }
-
-    const testHandleUpload = async () => {
-        const formData = new FormData();
-        formData.append('message', 'test');
-        const response = await fetch('http://localhost:8000/api/upload/', {
-            method: 'POST',
-            body: formData,
-        });
-        const data = await response.json();
-        console.log(data); // Handle response from backend
     }
 
     const handleUpload = async () => {
@@ -35,12 +52,12 @@ const FileUploadForm = ({ onFileUpload }) => {
         formData.append('file', file);
 
         try {
-            const response = await axios.post('http://localhost:8000/api/upload/', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'  // Ensure correct content type
-                }
+            const response = await axios.post(uploadUrl, formData, {
+                headers: {'Content-Type': 'multipart/form-data'}
             });
-            console.log(response.data);  // Handle response from backend
+            console.log(response.data);
+            createAudioUrl(response.data.vocals, setVocalsUrl);
+            createAudioUrl(response.data.no_vocals, setNoVocalsUrl);
         } catch (error) {
             console.error('Error uploading file:', error);
         }
@@ -50,6 +67,13 @@ const FileUploadForm = ({ onFileUpload }) => {
             <input type="file" onChange={handleFileChange} />
             <button onClick={handleUpload}>Upload</button>
             <button onClick={testConn}>Test</button>
+
+            <audio controls src={vocalsUrl} />
+            <audio controls src={noVocalsUrl} />
+            <button onClick={() => { /* Logic to download adjusted audio files */ }}>
+                Download
+            </button>
+
         </div>
     );
 };
