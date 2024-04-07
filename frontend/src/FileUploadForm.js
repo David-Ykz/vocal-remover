@@ -1,10 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import axios from 'axios';
+import AudioPlayer from "./AudioPlayer";
 
 const FileUploadForm = ({ onFileUpload }) => {
-
-
-
     const serverUrl = 'http://localhost:8000/api/';
     const testUrl = serverUrl + 'test/';
     const uploadUrl = serverUrl + 'upload/';
@@ -13,6 +11,8 @@ const FileUploadForm = ({ onFileUpload }) => {
 
     const [vocalsUrl, setVocalsUrl] = useState('');
     const [noVocalsUrl, setNoVocalsUrl] = useState('');
+    const [showAudioPlayer, setShowAudioPlayer] = useState(false);
+    const [isPlayingAll, setIsPlayingAll] = useState(false);
 
     function base64ToBlob(base64String, mimeType) {
         const binaryString = atob(base64String);
@@ -39,6 +39,14 @@ const FileUploadForm = ({ onFileUpload }) => {
         setFile(e.target.files[0]);
     };
 
+    function playAll() {
+        setIsPlayingAll(!isPlayingAll);
+    }
+
+
+
+
+
     const testConn = async () => {
         console.log(vocalsUrl);
         axios.post(testUrl, 'abc').then(res => {
@@ -58,6 +66,7 @@ const FileUploadForm = ({ onFileUpload }) => {
             console.log(response.data);
             createAudioUrl(response.data.vocals, setVocalsUrl);
             createAudioUrl(response.data.no_vocals, setNoVocalsUrl);
+            setShowAudioPlayer(true);
         } catch (error) {
             console.error('Error uploading file:', error);
         }
@@ -68,8 +77,15 @@ const FileUploadForm = ({ onFileUpload }) => {
             <button onClick={handleUpload}>Upload</button>
             <button onClick={testConn}>Test</button>
 
-            <audio controls src={vocalsUrl} />
-            <audio controls src={noVocalsUrl} />
+
+
+            {showAudioPlayer && (
+                <div>
+                    <button onClick={playAll}>{isPlayingAll ? 'Pause All' : 'Play All'}</button>
+                    <AudioPlayer url={vocalsUrl} isPlayingAll={isPlayingAll} setIsPlayingAll={playAll}/>
+                    <AudioPlayer url={noVocalsUrl} isPlayingAll={isPlayingAll}/>
+                </div>
+            )}
             <button onClick={() => { /* Logic to download adjusted audio files */ }}>
                 Download
             </button>
