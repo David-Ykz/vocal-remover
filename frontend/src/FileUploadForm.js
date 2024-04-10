@@ -12,7 +12,7 @@ const FileUploadForm = ({ onFileUpload }) => {
     const [vocalsUrl, setVocalsUrl] = useState('');
     const [noVocalsUrl, setNoVocalsUrl] = useState('');
     const [showAudioPlayer, setShowAudioPlayer] = useState(false);
-    const [isPlayingAll, setIsPlayingAll] = useState(false);
+    const [isPlaying, setIsPlaying] = useState(false);
 
     function base64ToBlob(base64String, mimeType) {
         const binaryString = atob(base64String);
@@ -39,9 +39,6 @@ const FileUploadForm = ({ onFileUpload }) => {
         setFile(e.target.files[0]);
     };
 
-    function playAll() {
-        setIsPlayingAll(!isPlayingAll);
-    }
 
 
 
@@ -81,9 +78,7 @@ const FileUploadForm = ({ onFileUpload }) => {
 
             {showAudioPlayer && (
                 <div>
-                    <button onClick={playAll}>{isPlayingAll ? 'Pause All' : 'Play All'}</button>
-                    <AudioPlayer url={vocalsUrl} isPlayingAll={isPlayingAll} setIsPlayingAll={playAll}/>
-                    <AudioPlayer url={noVocalsUrl} isPlayingAll={isPlayingAll}/>
+                    <AudioPlayer vocalsUrl={vocalsUrl} nonVocalsUrl={noVocalsUrl}/>
                 </div>
             )}
             <button onClick={() => { /* Logic to download adjusted audio files */ }}>
