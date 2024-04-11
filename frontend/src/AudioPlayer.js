@@ -15,8 +15,8 @@ const AudioPlayer = ({ vocalsUrl, nonVocalsUrl}) => {
             <button onClick={changePlaying}>
                 {isPlayingAll ? 'Pause All' : 'Play All'}
             </button>
-            <AudioVisualizer url={vocalsUrl} isPlayingAll={isPlayingAll} setIsPlayingAll={setIsPlayingAll}></AudioVisualizer>
-            <AudioVisualizer url={nonVocalsUrl} isPlayingAll={isPlayingAll} setIsPlayingAll={setIsPlayingAll}></AudioVisualizer>
+            <AudioVisualizer name={'Vocals'} url={vocalsUrl} isPlayingAll={isPlayingAll} setIsPlayingAll={setIsPlayingAll}></AudioVisualizer>
+            <AudioVisualizer name={'Instrumental'} url={nonVocalsUrl} isPlayingAll={isPlayingAll} setIsPlayingAll={setIsPlayingAll}></AudioVisualizer>
         </div>
     );
 };

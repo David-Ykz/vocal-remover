@@ -12,7 +12,6 @@ const FileUploadForm = ({ onFileUpload }) => {
     const [vocalsUrl, setVocalsUrl] = useState('');
     const [noVocalsUrl, setNoVocalsUrl] = useState('');
     const [showAudioPlayer, setShowAudioPlayer] = useState(false);
-    const [isPlaying, setIsPlaying] = useState(false);
 
     function base64ToBlob(base64String, mimeType) {
         const binaryString = atob(base64String);

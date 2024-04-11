@@ -1,10 +1,13 @@
 import React, {useEffect, useState} from 'react';
 import WavesurferPlayer from '@wavesurfer/react';
 
-const AudioVisualizer = ({ url, isPlayingAll, setIsPlayingAll }) => {
+const AudioVisualizer = ({name, url, isPlayingAll, setIsPlayingAll }) => {
     const [waveSurfer, setWaveSurfer] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [volume, setVolume] = useState(0.5);
+    const wsBackgroundColor = name === 'Vocals' ? '#159160' : '#38347e';
+    const wsWaveColor = name === 'Vocals' ? '#95ffd2' : '#9088e1';
+    const wsProgressColor = name === 'Vocals' ? '#1cffaa' : '#655cc4';
 
     useEffect(() => {
         if (waveSurfer) {
@@ -42,30 +45,45 @@ const AudioVisualizer = ({ url, isPlayingAll, setIsPlayingAll }) => {
     }
 
     return (
-        <div>
-            <WavesurferPlayer
-                height={100}
-                waveColor={'#ff892f'}
-                progressColor={'#e5431a'}
-                url={url}
-                onReady={onReady}
-                onPlay={() => setIsPlaying(true)}
-                onPause={() => setIsPlaying(false)}
-                onFinish={onFinish}
-            />
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginRight: '20px'}}>
+                <p style={{}}>
 
-            <button onClick={onPlayPause}>
-                {isPlaying ? 'Pause' : 'Play'}
-            </button>
-            <button onClick={resetTrackPosition}>Reset Track Position</button>
-            <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.01"
-                value={volume}
-                onChange={onVolumeChange}
-            />
+                </p>
+                {name}
+                <br/>
+                <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value={volume}
+                    onChange={onVolumeChange}
+                    style={{
+                        width: '50px',
+                        height: '5px',
+                        outline: 'none',
+                        background: 'white',
+                    }}
+                />
+                <br/>
+                <button onClick={onPlayPause}>{isPlaying ? 'Pause' : 'Play'}</button>
+                <br/>
+                <button onClick={resetTrackPosition}>Reset Track Position</button>
+            </div>
+            <div style={{backgroundColor: wsBackgroundColor}}>
+                <WavesurferPlayer
+                    height={100}
+                    width={400}
+                    waveColor={wsWaveColor}
+                    progressColor={wsProgressColor}
+                    url={url}
+                    onReady={onReady}
+                    onPlay={() => setIsPlaying(true)}
+                    onPause={() => setIsPlaying(false)}
+                    onFinish={onFinish}
+                />
+            </div>
         </div>
     );
 };

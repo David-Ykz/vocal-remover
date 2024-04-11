@@ -2,6 +2,7 @@ import React from 'react';
 import FileUploadForm from './FileUploadForm';
 
 const App = () => {
+  document.body.style.backgroundColor = '#333342';
   const handleFileUpload = async (file) => {
     const formData = new FormData();
     formData.append('file', file);
