@@ -7,10 +7,12 @@ const AudioVisualizer = ({ url, isPlayingAll, setIsPlayingAll }) => {
     const [volume, setVolume] = useState(0.5);
 
     useEffect(() => {
-        if (isPlayingAll) {
-            waveSurfer.play();
-        } else {
-            waveSurfer.pause();
+        if (waveSurfer) {
+            if (isPlayingAll) {
+                waveSurfer.play();
+            } else {
+                waveSurfer.pause();
+            }
         }
         setIsPlaying(isPlayingAll);
     }, [isPlayingAll]);
@@ -35,6 +37,10 @@ const AudioVisualizer = ({ url, isPlayingAll, setIsPlayingAll }) => {
         setIsPlaying(false);
     }
 
+    function resetTrackPosition() {
+        waveSurfer.seekTo(0);
+    }
+
     return (
         <div>
             <WavesurferPlayer
@@ -51,6 +57,7 @@ const AudioVisualizer = ({ url, isPlayingAll, setIsPlayingAll }) => {
             <button onClick={onPlayPause}>
                 {isPlaying ? 'Pause' : 'Play'}
             </button>
+            <button onClick={resetTrackPosition}>Reset Track Position</button>
             <input
                 type="range"
                 min="0"
