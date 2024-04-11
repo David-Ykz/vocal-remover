@@ -7,9 +7,12 @@ const AudioVisualizer = ({ url, isPlayingAll, setIsPlayingAll }) => {
     const [volume, setVolume] = useState(0.5);
 
     useEffect(() => {
-        if (!waveSurfer.finished) {
-            onPlayPause()
+        if (isPlayingAll) {
+            waveSurfer.play();
+        } else {
+            waveSurfer.pause();
         }
+        setIsPlaying(isPlayingAll);
     }, [isPlayingAll]);
 
     function onReady(ws) {
@@ -19,7 +22,6 @@ const AudioVisualizer = ({ url, isPlayingAll, setIsPlayingAll }) => {
 
     function onPlayPause() {
         isPlaying ? waveSurfer.pause() : waveSurfer.play();
-//        waveSurfer && waveSurfer.playPause();
     }
 
     function onVolumeChange(e) {
@@ -29,9 +31,8 @@ const AudioVisualizer = ({ url, isPlayingAll, setIsPlayingAll }) => {
     }
 
     function onFinish() {
-        console.log("why")
-        setIsPlaying(false);
         setIsPlayingAll(false);
+        setIsPlaying(false);
     }
 
     return (
