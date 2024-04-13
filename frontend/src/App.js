@@ -1,30 +1,50 @@
-import React from 'react';
-import FileUploadForm from './FileUploadForm';
+import React, {useState} from 'react';
+import AudioPlayer from "./AudioPlayer";
+import UploadForm from "./UploadForm";
 
 const App = () => {
-  document.body.style.backgroundColor = '#333342';
-  const handleFileUpload = async (file) => {
-    const formData = new FormData();
-    formData.append('file', file);
+	document.body.style.backgroundColor = '#333342';
+    const [vocalsUrl, setVocalsUrl] = useState('');
+    const [noVocalsUrl, setNoVocalsUrl] = useState('');
+    const [showAudioPlayer, setShowAudioPlayer] = useState(false);
 
-    try {
-      const response = await fetch('http://your-django-backend/upload', {
-        method: 'POST',
-        body: formData,
-      });
-      const data = await response.json();
-      console.log(data); // Handle response from backend
-    } catch (error) {
-      console.error('Error uploading file:', error);
+    function base64ToBlob(base64String, mimeType) {
+        const binaryString = atob(base64String);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        return new Blob([bytes], { type: mimeType });
     }
-  };
 
-  return (
-      <div>
-        <h1>Upload MP3 File</h1>
-        <FileUploadForm onFileUpload={handleFileUpload} />
-      </div>
-  );
+    const createAudioUrl = (audioData, setAudioUrl) => {
+        console.log("creating audio" + audioData.length);
+        try {
+            const blob = base64ToBlob(audioData, 'audio/mp3');
+            console.log(blob);
+            const url = URL.createObjectURL(blob);
+            setAudioUrl(url);
+        } catch (error) {
+            console.error('Error creating audio URL:', error);
+        }
+    };
+
+    function onServerResponse(response) {
+        console.log(response);
+        createAudioUrl(response.vocals, setVocalsUrl);
+        createAudioUrl(response.no_vocals, setNoVocalsUrl);
+        setShowAudioPlayer(true);
+    }
+
+    return (
+        <div>
+            {showAudioPlayer ?
+                <AudioPlayer vocalsUrl={vocalsUrl} nonVocalsUrl={noVocalsUrl}/>
+                :
+                <UploadForm onServerResponse={onServerResponse} />
+            }
+        </div>
+    );
 };
 
 export default App;

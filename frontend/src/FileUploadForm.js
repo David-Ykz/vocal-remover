@@ -38,19 +38,6 @@ const FileUploadForm = ({ onFileUpload }) => {
         setFile(e.target.files[0]);
     };
 
-
-
-
-
-
-    const testConn = async () => {
-        console.log(vocalsUrl);
-        axios.post(testUrl, 'abc').then(res => {
-            const data = res.data;
-            console.log(data);
-        })
-    }
-
     const handleUpload = async () => {
         const formData = new FormData();
         formData.append('file', file);
@@ -71,10 +58,7 @@ const FileUploadForm = ({ onFileUpload }) => {
         <div>
             <input type="file" onChange={handleFileChange} />
             <button onClick={handleUpload}>Upload</button>
-            <button onClick={testConn}>Test</button>
-
-
-
+            
             {showAudioPlayer && (
                 <div>
                     <AudioPlayer vocalsUrl={vocalsUrl} nonVocalsUrl={noVocalsUrl}/>

@@ -8,8 +8,6 @@ const AudioPlayer = ({ vocalsUrl, nonVocalsUrl}) => {
         setIsPlayingAll(!isPlayingAll);
     }
 
-
-
     return (
         <div>
             <button onClick={changePlaying}>
