@@ -5,9 +5,11 @@ const UploadForm = ({onServerResponse}) => {
     const uploadControlStyle = { backgroundColor: '#4E4096', color: 'white', border: 'none', fontSize: '24px', padding: '10px', borderRadius: '10px', fontFamily: 'Segoe UI'}
 
     const [file, setFile] = useState(null);
+    const [fileName, setFileName] = useState('');
 
     function handleFileChange(e) {
         setFile(e.target.files[0]);
+        setFileName(e.target.files[0].name);
     }
 
     async function handleUpload() {
@@ -33,8 +35,9 @@ const UploadForm = ({onServerResponse}) => {
                     <input id="fileInput" type="file" onChange={handleFileChange} style={{ position: 'absolute', top: 0, left: 0, opacity: 0, width: '100%', height: '100%', cursor: 'pointer' }} />
                 </label>
             </div>
+            <p style={{fontFamily: 'Segoe UI', fontSize: '18px', textAlign: 'center', color: 'white', marginTop: '5px'}}>{fileName}</p>
             <div style={{display: 'flex', justifyContent: 'center'}}>
-                <button onClick={handleUpload} style={{...uploadControlStyle, marginTop: '50px', paddingTop: '7px', cursor: 'pointer'}}>Upload</button>
+                <button onClick={handleUpload} style={{...uploadControlStyle, marginTop: '30px', paddingTop: '7px', cursor: 'pointer'}}>Upload</button>
             </div>
         </div>
     );

@@ -13,8 +13,7 @@ const AudioVisualizer = ({name, url, isPlayingAll, setIsPlayingAll }) => {
     const wsBackgroundColor = name === 'Vocals' ? '#159160' : '#38347e';
     const wsWaveColor = name === 'Vocals' ? '#95ffd2' : '#9088e1';
     const wsProgressColor = name === 'Vocals' ? '#1cffaa' : '#655cc4';
-
-    const iconSize = '25px';
+    const topPosition = name === 'Vocals' ? '0px' : '150px';
     const buttonStyle = {backgroundColor: 'transparent', outline: 'none', border: 'none'};
 
     useEffect(() => {
@@ -53,38 +52,39 @@ const AudioVisualizer = ({name, url, isPlayingAll, setIsPlayingAll }) => {
     }
 
     return (
-        <div style={{ display: 'flex', alignItems: 'center'}}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginRight: '20px'}}>
-                <p style={{fontFamily: 'Segoe UI', fontSize: '24px', textAlign: 'center', color: 'white'}}>
-                    {name}
-                </p>
-                <img src={volumeIcon} alt={'volume'} height={iconSize}/>
-                <input
-                    type="range"
-                    min="0"
-                    max="1"
-                    step="0.01"
-                    value={volume}
-                    onChange={onVolumeChange}
-                    style={{
-                        appearance: 'none',
-                        width: '50px',
-                        height: '6px',
-                        background: 'white',
-                        borderRadius: '5px',
-                        outline: 'none'
-                    }}
-                />
-                <button onClick={onPlayPause} style={buttonStyle}>{isPlaying ?
-                    <img src={pauseIcon} alt='pause' height={iconSize}/>
-                    :
-                    <img src={playIcon} alt='play' height={iconSize}/>
-                }</button>
-                <button onClick={resetTrackPosition} style={buttonStyle}>
-                    <img src={resetIcon} alt='reset' height={iconSize}/>
-                </button>
-            </div>
-            <div style={{backgroundColor: wsBackgroundColor}}>
+        <div style={{ position: 'absolute', top: topPosition}}>
+            <p style={{fontFamily: 'Segoe UI', fontSize: '24px', color: 'white', position: 'absolute', top: '-5px', left: '5px'}}>
+                {name}
+            </p>
+            <img src={volumeIcon} alt={'volume'} height={'25px'} style={{position: 'absolute', left: '63px', top: '58px'}}/>
+            <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={volume}
+                onChange={onVolumeChange}
+                style={{
+                    appearance: 'none',
+                    width: '50px',
+                    height: '6px',
+                    background: 'white',
+                    borderRadius: '5px',
+                    outline: 'none',
+                    position: 'absolute',
+                    top: '65px',
+                    left: '90px'
+                }}
+            />
+            <button onClick={onPlayPause} style={{...buttonStyle, position: 'absolute', left: '0px', top: '60px'}}>{isPlaying ?
+                <img src={pauseIcon} alt='pause' height={'20px'}/>
+                :
+                <img src={playIcon} alt='play' height={'20px'}/>
+            }</button>
+            <button onClick={resetTrackPosition} style={{...buttonStyle, position: 'absolute', left: '25px', top: '58px'}}>
+                <img src={resetIcon} alt='reset' height={'25px'}/>
+            </button>
+            <div style={{backgroundColor: wsBackgroundColor, position: 'absolute', left: '170px'}}>
                 <WavesurferPlayer
                     height={100}
                     width={400}

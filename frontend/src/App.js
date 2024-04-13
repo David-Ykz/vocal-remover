@@ -37,11 +37,11 @@ const App = () => {
     }
 
     return (
-        <div style={{display: 'flex', justifyContent: 'center', marginTop: '10%'}}>
+        <div >
             {showAudioPlayer ?
                 <AudioPlayer vocalsUrl={vocalsUrl} nonVocalsUrl={noVocalsUrl}/>
                 :
-                <UploadForm onServerResponse={onServerResponse} />
+                <UploadForm onServerResponse={onServerResponse} style={{display: 'flex', justifyContent: 'center', marginTop: '10%'}}/>
             }
         </div>
     );
