@@ -37,7 +37,7 @@ const App = () => {
     }
 
     return (
-        <div>
+        <div style={{display: 'flex', justifyContent: 'center', marginTop: '10%'}}>
             {showAudioPlayer ?
                 <AudioPlayer vocalsUrl={vocalsUrl} nonVocalsUrl={noVocalsUrl}/>
                 :

@@ -55,10 +55,9 @@ const AudioVisualizer = ({name, url, isPlayingAll, setIsPlayingAll }) => {
     return (
         <div style={{ display: 'flex', alignItems: 'center'}}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginRight: '20px'}}>
-                <p style={{fontFamily: 'Segoe UI', fontSize: '24px', textAlign: 'center'}}>
+                <p style={{fontFamily: 'Segoe UI', fontSize: '24px', textAlign: 'center', color: 'white'}}>
                     {name}
                 </p>
-                <br/>
                 <img src={volumeIcon} alt={'volume'} height={iconSize}/>
                 <input
                     type="range"
