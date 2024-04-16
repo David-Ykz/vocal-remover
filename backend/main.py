@@ -1,9 +1,33 @@
 import demucs.separate
 # requires "pip install soundfile"
+from shazamio import Shazam
+import asyncio
+#demucs.separate.main(["--mp3", "--two-stems", "vocals", "-n", "mdx_extra", "audio1.mp3"])
 
-demucs.separate.main(["--mp3", "--two-stems", "vocals", "-n", "mdx_extra", "audio1.mp3"])
+from lyricsgenius import Genius
 
 
+API_KEY = ''
+
+genius = Genius(API_KEY)
+
+print(genius.search_song('Viva La Vida - Coldplay').lyrics)
+
+
+
+async def recognizeSong(fileName):
+    shazam = Shazam()
+    out = await shazam.recognize(fileName)
+    return out
+
+def getSongInfo(fileName):
+    loop = asyncio.get_event_loop()
+    return loop.run_until_complete(recognizeSong(fileName))["track"]["share"]["subject"]
+
+#data = getSongInfo('audio1.mp3')
+
+#print(data["track"]["share"]["subject"])
+#print(data)
 # Initialize with default parameters:
 #separator = demucs.api.Separator()
 

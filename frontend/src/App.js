@@ -33,6 +33,8 @@ const App = () => {
         console.log(response);
         createAudioUrl(response.vocals, setVocalsUrl);
         createAudioUrl(response.no_vocals, setNoVocalsUrl);
+        console.log(response.name);
+        console.log(response.lyrics);
         setShowAudioPlayer(true);
     }
 
