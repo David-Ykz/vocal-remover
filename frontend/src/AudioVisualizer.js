@@ -8,7 +8,7 @@ import volumeIcon from './volume.png';
 const AudioVisualizer = ({name, url, isPlayingAll, setIsPlayingAll }) => {
     const [waveSurfer, setWaveSurfer] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
-    const [volume, setVolume] = useState(0.5);
+    const [volume, setVolume] = useState(1);
 
     const wsBackgroundColor = name === 'Vocals' ? '#159160' : '#38347e';
     const wsWaveColor = name === 'Vocals' ? '#95ffd2' : '#9088e1';
