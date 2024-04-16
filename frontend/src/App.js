@@ -6,6 +6,8 @@ const App = () => {
 	document.body.style.backgroundColor = '#333342';
     const [vocalsUrl, setVocalsUrl] = useState('');
     const [noVocalsUrl, setNoVocalsUrl] = useState('');
+    const [songName, setSongName] = useState('');
+    const [songLyrics, setSongLyrics] = useState('');
     const [showAudioPlayer, setShowAudioPlayer] = useState(false);
 
     function base64ToBlob(base64String, mimeType) {
@@ -33,15 +35,15 @@ const App = () => {
         console.log(response);
         createAudioUrl(response.vocals, setVocalsUrl);
         createAudioUrl(response.no_vocals, setNoVocalsUrl);
-        console.log(response.name);
-        console.log(response.lyrics);
+        setSongName(response.name);
+        setSongLyrics(response.lyrics);
         setShowAudioPlayer(true);
     }
 
     return (
         <div >
             {showAudioPlayer ?
-                <AudioPlayer vocalsUrl={vocalsUrl} nonVocalsUrl={noVocalsUrl}/>
+                <AudioPlayer vocalsUrl={vocalsUrl} nonVocalsUrl={noVocalsUrl} songName={songName} songLyrics={songLyrics}/>
                 :
                 <UploadForm onServerResponse={onServerResponse} style={{display: 'flex', justifyContent: 'center', marginTop: '10%'}}/>
             }
