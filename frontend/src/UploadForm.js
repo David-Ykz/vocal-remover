@@ -6,6 +6,7 @@ const UploadForm = ({onServerResponse}) => {
 
     const [file, setFile] = useState(null);
     const [fileName, setFileName] = useState('');
+    const [displayUploadPrompt, setDisplayUploadPrompt] = useState(false);
 
     function handleFileChange(e) {
         setFile(e.target.files[0]);
@@ -13,6 +14,7 @@ const UploadForm = ({onServerResponse}) => {
     }
 
     async function handleUpload() {
+        setDisplayUploadPrompt(true);
         const url = 'http://localhost:8000/api/upload/';
         const formData = new FormData();
         formData.append('file', file);
@@ -25,6 +27,7 @@ const UploadForm = ({onServerResponse}) => {
         } catch (error) {
             console.error('Error uploading file:', error);
         }
+        setDisplayUploadPrompt(false);
     }
 
     return (
@@ -39,6 +42,13 @@ const UploadForm = ({onServerResponse}) => {
             <div style={{display: 'flex', justifyContent: 'center'}}>
                 <button onClick={handleUpload} style={{...uploadControlStyle, marginTop: '30px', paddingTop: '7px', cursor: 'pointer'}}>Upload</button>
             </div>
+            {displayUploadPrompt ?
+                <p style={{fontFamily: 'Segoe UI', fontSize: '18px', textAlign: 'center', color: 'white', marginTop: '5px'}}>
+                    Processing file. This may take up to 10 minutes depending on the length of the file uploaded
+                </p>
+                :
+                <></>
+            }
         </div>
     );
 };
