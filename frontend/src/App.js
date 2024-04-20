@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import AudioPlayer from "./AudioPlayer";
 import UploadForm from "./UploadForm";
+import axios from "axios";
 
 const App = () => {
 	document.body.style.backgroundColor = '#333342';
@@ -40,8 +41,19 @@ const App = () => {
         setShowAudioPlayer(true);
     }
 
+    async function testPlaylistUpload() {
+        const url = 'http://localhost:8000/api/playlist/';
+        try {
+            const response = await axios.get(url);
+            console.log(response.data);
+        } catch (error) {
+            console.error('Error uploading file:', error);
+        }
+    }
+
     return (
         <div >
+            <button onClick={testPlaylistUpload}>Test</button>
             {showAudioPlayer ?
                 <AudioPlayer vocalsUrl={vocalsUrl} nonVocalsUrl={noVocalsUrl} songName={songName} songLyrics={songLyrics}/>
                 :

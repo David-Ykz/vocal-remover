@@ -5,3 +5,7 @@ backend/ffprobe.exe
 backend/ffplay.exe
 backend/ffmpeg.exe
 backend/.cache
+backend/server/.cache
+backend/server/ffmpeg.exe
+backend/server/ffplay.exe
+backend/server/ffprobe.exe

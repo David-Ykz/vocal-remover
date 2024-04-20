@@ -1,4 +1,5 @@
 import base64
+import time
 
 import demucs.separate # requires "pip install soundfile"
 import os
@@ -6,6 +7,7 @@ from dotenv import load_dotenv
 from shazamio import Shazam
 from lyricsgenius import Genius
 import spotube
+import threading
 
 
 # Create your views here.
@@ -50,13 +52,19 @@ def getSongLyrics(songName):
 
 def downloadPlaylist(playlistLink):
     downloadManager = spotube.DownloadManager(SPOTIFY_ID, SPOTIFY_SECRET, GENIUS_API_TOKEN)
-    downloadManager.start_downloader(playlistLink)
+    print(downloadManager.downloader_active())
+    downloadManager.start_downloaderWithoutThread(playlistLink)
+    # for i in range(100):
+    #     print(downloadManager.working)
+    #     time.sleep(1)
+    print(downloadManager.downloader_active())
 
 def convertPlaylist():
     files = os.listdir('./Songs')
     separatedUrls = []
     for file in files:
         separatedUrls.append(splitAudio(file))
+    return files
 
 @csrf_exempt
 async def handleFileUpload(request):
@@ -73,3 +81,21 @@ async def handleFileUpload(request):
         'lyrics': songLyrics
     }
     return JsonResponse(response_data)
+
+@csrf_exempt
+async def handlePlaylistUpload(request):
+    playlistLink = "https://open.spotify.com/playlist/0HIIb9KTmD5kmU61L4r1o4?si=26eb665e3110432b"
+    downloadThread = threading.Thread(target=downloadPlaylist, args=(playlistLink,))
+
+    downloadThread.start()
+    downloadThread.join()
+
+#    downloadPlaylist(playlistLink)
+    print('ff')
+    playlistUrls = convertPlaylist()
+    print(playlistUrls)
+    response_data = {
+        'hi': 'test'
+    }
+    return JsonResponse(response_data)
+
