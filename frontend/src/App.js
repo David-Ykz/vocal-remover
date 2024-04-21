@@ -75,9 +75,15 @@ const App = () => {
 
             {isPlaylist ?
                 (
-                    <div style={{position: 'absolute', bottom: '10%', marginLeft: '5%'}}>
-                        <button onClick={previousSong} style={{ backgroundColor: '#4E4096', color: 'white', border: 'none', fontSize: '16px', padding: '10px', borderRadius: '10px', fontFamily: 'Segoe UI'}}>Previous Song</button>
-                        <button onClick={nextSong} style={{ backgroundColor: '#4E4096', color: 'white', border: 'none', fontSize: '16px', padding: '10px', borderRadius: '10px', fontFamily: 'Segoe UI', marginLeft: '10px'}}>Next Song</button>
+                    <div>
+
+                        <div style={{position: 'absolute', bottom: '15%', marginLeft: '5%'}}>
+                            <button onClick={previousSong} style={{ backgroundColor: '#4E4096', color: 'white', border: 'none', fontSize: '16px', padding: '10px', borderRadius: '10px', fontFamily: 'Segoe UI'}}>Previous Song</button>
+                            <button onClick={nextSong} style={{ backgroundColor: '#4E4096', color: 'white', border: 'none', fontSize: '16px', padding: '10px', borderRadius: '10px', fontFamily: 'Segoe UI', marginLeft: '10px'}}>Next Song</button>
+                        </div>
+                        <p style={{color: 'white', fontSize: '24px', fontFamily: 'Segoe UI', marginLeft: '5%', position: 'absolute', bottom: '5%'}}>
+                            {playlistIndex + 1} / {playlistVocals.length}
+                        </p>
                     </div>
                 )
                 :
