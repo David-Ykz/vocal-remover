@@ -35,10 +35,10 @@ def saveAudio(file):
         for chunk in file.chunks():
             destination.write(chunk)
 
-def splitAudio(fileName):
-    demucs.separate.main(['--mp3', '--two-stems', 'vocals', '-n', 'mdx_extra', fileName])
-    vocalString = readAudioToString('separated/mdx_extra/audio/vocals.mp3')
-    nonVocalString = readAudioToString('separated/mdx_extra/audio/no_vocals.mp3')
+def splitAudio(filePath, song):
+#    demucs.separate.main(['--mp3', '--two-stems', 'vocals', '-n', 'mdx_extra', filePath])
+    vocalString = readAudioToString('separated/mdx_extra/' + song + '/vocals.mp3')
+    nonVocalString = readAudioToString('separated/mdx_extra/' + song + '/no_vocals.mp3')
     return vocalString, nonVocalString
 
 async def getSongName(fileName):
@@ -47,31 +47,48 @@ async def getSongName(fileName):
     return song["track"]["share"]["subject"]
 
 def getSongLyrics(songName):
-    genius = Genius(GENIUS_API_TOKEN)
-    return genius.search_song(songName).lyrics
+    lyrics = ""
+    try:
+        genius = Genius(GENIUS_API_TOKEN)
+        lyrics = genius.search_song(songName).lyrics
+    except:
+        print("could not find lyrics")
+
+    return lyrics
 
 def downloadPlaylist(playlistLink):
     downloadManager = spotube.DownloadManager(SPOTIFY_ID, SPOTIFY_SECRET, GENIUS_API_TOKEN)
     downloadManager.start_downloaderWithoutThread(playlistLink)
 
-def convertPlaylist():
+async def convertPlaylist():
     mainDirectory = './Songs'
     files = os.listdir(mainDirectory)
-    separatedUrls = []
+    separatedVocals = []
+    separatedNonVocals = []
+    songNames = []
+    songLyrics = []
     for file in files:
-        print(mainDirectory + '/' + file)
-        separatedUrls.append(splitAudio(mainDirectory + '/' + file))
-    return separatedUrls
+        filePath = mainDirectory + '/' + file
+        print("Processing: " + filePath)
+        vocals, nonVocals = splitAudio(filePath, file[:-4])
+        separatedVocals.append(vocals)
+        separatedNonVocals.append(nonVocals)
+        songName = await getSongName(filePath)
+        songNames.append(songName)
+        lyrics = getSongLyrics(songName)
+        songLyrics.append(lyrics)
+    return separatedVocals, separatedNonVocals, songNames, songLyrics
 
 @csrf_exempt
 async def handleFileUpload(request):
     audioFile = request.FILES['file']
-    splitAudio(audioFile)
-    vocals, nonVocals = splitAudio(audioFile)
+    saveAudio(audioFile)
+    vocals, nonVocals = splitAudio('audio.mp3')
     songName = await getSongName('audio.mp3')
     songLyrics = getSongLyrics(songName)
 
     response_data = {
+        'response_type': 'single',
         'vocals': vocals,
         'no_vocals': nonVocals,
         'name': songName,
@@ -81,13 +98,16 @@ async def handleFileUpload(request):
 
 @csrf_exempt
 async def handlePlaylistUpload(request):
+    print(request)
     playlistLink = "https://open.spotify.com/playlist/0HIIb9KTmD5kmU61L4r1o4?si=26eb665e3110432b"
-    downloadPlaylist(playlistLink)
-    print('ff')
-    playlistUrls = convertPlaylist()
-    print(playlistUrls)
+#    downloadPlaylist(playlistLink)
+    vocals, nonVocals, songNames, songLyrics = await convertPlaylist()
     response_data = {
-        'urls': playlistUrls
+        'response_type': 'playlist',
+        'vocals': vocals,
+        'no_vocals': nonVocals,
+        'names': songNames,
+        'lyrics': songLyrics
     }
     return JsonResponse(response_data)
 

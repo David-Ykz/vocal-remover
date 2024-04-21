@@ -41,10 +41,11 @@ const UploadForm = ({onServerResponse}) => {
         setDisplayUploadPrompt(false);
     }
 
-    async function uploadLink(link) {
+    async function uploadLink() {
         setDisplayUploadPrompt(true);
         const url = 'http://localhost:8000/api/playlist/';
         const formData = new FormData();
+        console.log(link)
         formData.append('link', link);
         try {
             const response = await axios.post(url, formData, {
@@ -60,6 +61,7 @@ const UploadForm = ({onServerResponse}) => {
 
     return (
         <div>
+            <button onClick={switchModes}>Switch Mode</button>
             {mode === "playlist" ?
                 (
                     <div>

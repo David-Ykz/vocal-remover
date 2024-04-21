@@ -2,6 +2,7 @@ const LyricsVisualizer = ({lyrics}) => {
     function processLyrics(lyrics) {
         lyrics = lyrics.substring(lyrics.indexOf("["));
         lyrics = lyrics.replace("See Coldplay LiveGet tickets as low as $106You might also like", "\n");
+        // 242Embed
         return lyrics
     }
 
