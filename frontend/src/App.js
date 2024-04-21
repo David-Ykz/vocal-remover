@@ -30,13 +30,10 @@ const App = () => {
             setSongLyrics(response.lyrics);
             setIsPlaylist(false);
         } else if (response.response_type === "playlist") {
-            console.log("before: " + playlistVocals);
             playlistVocals = response.vocals;
-            console.log("after: " + playlistVocals);
             playlistNonVocals = response.no_vocals;
             playlistSongNames = response.names;
             playlistSongLyrics = response.lyrics;
-
 
             updateAudioPlayer(0);
 
@@ -47,16 +44,20 @@ const App = () => {
 
     function nextSong() {
         const playlistLength = playlistVocals.length;
-        console.log(playlistLength);
-        console.log(playlistVocals);
         if (playlistIndex + 1 < playlistLength) {
             playlistIndex += 1;
             updateAudioPlayer(playlistIndex);
         }
     }
 
+    function previousSong() {
+        if (playlistIndex - 1 >= 0) {
+            playlistIndex -= 1;
+            updateAudioPlayer(playlistIndex);
+        }
+    }
+
     function updateAudioPlayer(index) {
-        console.log(playlistVocals)
         setVocalsUrl(createAudioUrl(playlistVocals[index]));
         setNoVocalsUrl(createAudioUrl(playlistNonVocals[index]));
         setSongName(playlistSongNames[index]);
@@ -74,10 +75,9 @@ const App = () => {
 
             {isPlaylist ?
                 (
-                    <div>
-
-                        <button onClick={nextSong}>Next</button>
-                        {playlistVocals.length}
+                    <div style={{position: 'absolute', bottom: '10%', marginLeft: '5%'}}>
+                        <button onClick={previousSong} style={{ backgroundColor: '#4E4096', color: 'white', border: 'none', fontSize: '16px', padding: '10px', borderRadius: '10px', fontFamily: 'Segoe UI'}}>Previous Song</button>
+                        <button onClick={nextSong} style={{ backgroundColor: '#4E4096', color: 'white', border: 'none', fontSize: '16px', padding: '10px', borderRadius: '10px', fontFamily: 'Segoe UI', marginLeft: '10px'}}>Next Song</button>
                     </div>
                 )
                 :
