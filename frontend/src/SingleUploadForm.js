@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import axios from 'axios';
 import AudioPlayer from "./AudioPlayer";
 
-const FileUploadForm = ({ onFileUpload }) => {
+const SingleUploadForm = ({ onFileUpload }) => {
     const serverUrl = 'http://localhost:8000/api/';
     const testUrl = serverUrl + 'test/';
     const uploadUrl = serverUrl + 'upload/';
@@ -72,4 +72,4 @@ const FileUploadForm = ({ onFileUpload }) => {
     );
 };
 
-export default FileUploadForm;
+export default SingleUploadForm;

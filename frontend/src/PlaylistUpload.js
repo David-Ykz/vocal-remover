@@ -1,12 +1,9 @@
 import React, {useState} from 'react';
 import AudioPlayer from "./AudioPlayer";
-import UploadForm from "./UploadForm.js";
-import axios from "axios";
 import PlaylistUploadForm from "./PlaylistUploadForm";
+import axios from "axios";
 
-const App = () => {
-	document.body.style.backgroundColor = '#333342';
-
+const PlaylistUpload = () => {
     const [vocalsUrl, setVocalsUrl] = useState('');
     const [noVocalsUrl, setNoVocalsUrl] = useState('');
     const [songName, setSongName] = useState('');
@@ -22,7 +19,7 @@ const App = () => {
         return new Blob([bytes], { type: mimeType });
     }
 
-    function createAudioUrl(audioData, setAudioUrl) {
+    const createAudioUrl = (audioData, setAudioUrl) => {
         console.log("creating audio" + audioData.length);
         try {
             const blob = base64ToBlob(audioData, 'audio/mp3');
@@ -32,7 +29,7 @@ const App = () => {
         } catch (error) {
             console.error('Error creating audio URL:', error);
         }
-    }
+    };
 
     function onServerResponse(response) {
         console.log(response);
@@ -43,16 +40,25 @@ const App = () => {
         setShowAudioPlayer(true);
     }
 
+    async function testPlaylistUpload() {
+        const url = 'http://localhost:8000/api/playlist/';
+        try {
+            const response = await axios.get(url);
+            console.log(response.data);
+        } catch (error) {
+            console.error('Error uploading file:', error);
+        }
+    }
 
     return (
         <div>
             {showAudioPlayer ?
                 <AudioPlayer vocalsUrl={vocalsUrl} nonVocalsUrl={noVocalsUrl} songName={songName} songLyrics={songLyrics}/>
                 :
-                <UploadForm onServerResponse={onServerResponse} style={{display: 'flex', justifyContent: 'center', marginTop: '10%'}}/>
+                <PlaylistUploadForm onServerResponse={onServerResponse} style={{display: 'flex', justifyContent: 'center', marginTop: '10%'}}/>
             }
         </div>
     );
 };
 
-export default App;
+export default PlaylistUpload;

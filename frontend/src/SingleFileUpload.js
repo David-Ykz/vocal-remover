@@ -1,12 +1,9 @@
 import React, {useState} from 'react';
 import AudioPlayer from "./AudioPlayer";
-import UploadForm from "./UploadForm.js";
+import UploadForm from "./UploadForm";
 import axios from "axios";
-import PlaylistUploadForm from "./PlaylistUploadForm";
 
-const App = () => {
-	document.body.style.backgroundColor = '#333342';
-
+const SingleFileUpload = () => {
     const [vocalsUrl, setVocalsUrl] = useState('');
     const [noVocalsUrl, setNoVocalsUrl] = useState('');
     const [songName, setSongName] = useState('');
@@ -22,7 +19,7 @@ const App = () => {
         return new Blob([bytes], { type: mimeType });
     }
 
-    function createAudioUrl(audioData, setAudioUrl) {
+    const createAudioUrl = (audioData, setAudioUrl) => {
         console.log("creating audio" + audioData.length);
         try {
             const blob = base64ToBlob(audioData, 'audio/mp3');
@@ -32,7 +29,7 @@ const App = () => {
         } catch (error) {
             console.error('Error creating audio URL:', error);
         }
-    }
+    };
 
     function onServerResponse(response) {
         console.log(response);
@@ -42,7 +39,6 @@ const App = () => {
         setSongLyrics(response.lyrics);
         setShowAudioPlayer(true);
     }
-
 
     return (
         <div>
@@ -55,4 +51,4 @@ const App = () => {
     );
 };
 
-export default App;
+export default SingleFileUpload;
