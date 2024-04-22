@@ -70,7 +70,8 @@ const UploadForm = ({onServerResponse}) => {
                                 type="text"
                                 value={link}
                                 onChange={handleLinkChange}
-                                placeholder="Type something..."
+                                placeholder="Enter a valid Spotify playlist link"
+                                style={{fontSize: '18px', backgroundColor: '#444081', border: 'none', color: 'white', borderRadius: '4px', padding: '5px', width: '40%'}}
                             />
                         </div>
                         <div style={{display: 'flex', justifyContent: 'center'}}>
