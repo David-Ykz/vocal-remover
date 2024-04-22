@@ -1,8 +1,11 @@
 const LyricsVisualizer = ({lyrics}) => {
+    const textToRemove = ["206Embed", "See Coldplay LiveGet tickets as low as $106", "242Embed", "You might also like", "Embed"]
+
     function processLyrics(lyrics) {
         lyrics = lyrics.substring(lyrics.indexOf("["));
-        lyrics = lyrics.replace("See Coldplay LiveGet tickets as low as $106You might also like", "\n");
-        // 242Embed
+        for (let i in textToRemove) {
+            lyrics = lyrics.replace(textToRemove[i], "");
+        }
         return lyrics
     }
 

@@ -61,7 +61,6 @@ const UploadForm = ({onServerResponse}) => {
 
     return (
         <div>
-            <button onClick={switchModes}>Switch Mode</button>
             {mode === "playlist" ?
                 (
                     <div>
@@ -79,11 +78,14 @@ const UploadForm = ({onServerResponse}) => {
                         </div>
                         {displayUploadPrompt ?
                             <p style={{fontFamily: 'Segoe UI', fontSize: '18px', textAlign: 'center', color: 'white', marginTop: '5px'}}>
-                                Processing file. This may take up to 10 minutes depending on the length of the file uploaded
+                                Processing playlist. This may a long time depending on the number of songs in the playlist
                             </p>
                             :
                             <></>
                         }
+                        <div style={{display: 'flex', justifyContent: 'center', marginTop: '250px'}}>
+                            <button onClick={switchModes} style={{...uploadControlStyle, fontSize: '18px'}}>Upload a single file instead</button>
+                        </div>
                     </div>
                 )
                 :
@@ -106,6 +108,9 @@ const UploadForm = ({onServerResponse}) => {
                             :
                             <></>
                         }
+                        <div style={{display: 'flex', justifyContent: 'center', marginTop: '200px'}}>
+                            <button onClick={switchModes} style={{...uploadControlStyle, fontSize: '18px'}}>Upload a playlist instead</button>
+                        </div>
                     </div>
                 )
 
