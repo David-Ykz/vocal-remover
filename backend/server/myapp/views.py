@@ -36,9 +36,14 @@ def saveAudio(file):
             destination.write(chunk)
 
 def splitAudio(filePath, song):
-#    demucs.separate.main(['--mp3', '--two-stems', 'vocals', '-n', 'mdx_extra', filePath])
+    demucs.separate.main(['--mp3', '--two-stems', 'vocals', '-n', 'mdx_extra', filePath])
     vocalString = readAudioToString('separated/mdx_extra/' + song + '/vocals.mp3')
     nonVocalString = readAudioToString('separated/mdx_extra/' + song + '/no_vocals.mp3')
+
+    os.remove('separated/mdx_extra/' + song + '/vocals.mp3')
+    os.remove('separated/mdx_extra/' + song + '/no_vocals.mp3')
+    os.rmdir('separated/mdx_extra/' + song)
+
     return vocalString, nonVocalString
 
 async def getSongName(fileName):
@@ -47,14 +52,9 @@ async def getSongName(fileName):
     return song["track"]["share"]["subject"]
 
 def getSongLyrics(songName):
-    lyrics = ""
-    try:
-        genius = Genius(GENIUS_API_TOKEN)
-        lyrics = genius.search_song(songName).lyrics
-    except:
-        print("could not find lyrics")
+    genius = Genius(GENIUS_API_TOKEN)
+    return genius.search_song(songName).lyrics
 
-    return lyrics
 
 def downloadPlaylist(playlistLink):
     downloadManager = spotube.DownloadManager(SPOTIFY_ID, SPOTIFY_SECRET, GENIUS_API_TOKEN)
@@ -74,6 +74,7 @@ async def convertPlaylist():
         separatedVocals.append(vocals)
         separatedNonVocals.append(nonVocals)
         songName = await getSongName(filePath)
+        os.remove(filePath)
         songNames.append(songName)
         lyrics = getSongLyrics(songName)
         songLyrics.append(lyrics)
@@ -83,8 +84,9 @@ async def convertPlaylist():
 async def handleFileUpload(request):
     audioFile = request.FILES['file']
     saveAudio(audioFile)
-    vocals, nonVocals = splitAudio('audio.mp3')
+    vocals, nonVocals = splitAudio('audio.mp3', 'audio')
     songName = await getSongName('audio.mp3')
+    os.remove('audio.mp3')
     songLyrics = getSongLyrics(songName)
 
     response_data = {
@@ -98,9 +100,10 @@ async def handleFileUpload(request):
 
 @csrf_exempt
 async def handlePlaylistUpload(request):
-    print(request)
-    playlistLink = "https://open.spotify.com/playlist/0HIIb9KTmD5kmU61L4r1o4?si=26eb665e3110432b"
-#    downloadPlaylist(playlistLink)
+    playlistLink = request.POST['link']
+    print(playlistLink)
+#    playlistLink = "https://open.spotify.com/playlist/0HIIb9KTmD5kmU61L4r1o4?si=26eb665e3110432b"
+    downloadPlaylist(playlistLink)
     vocals, nonVocals, songNames, songLyrics = await convertPlaylist()
     response_data = {
         'response_type': 'playlist',
