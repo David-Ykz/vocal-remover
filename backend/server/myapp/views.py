@@ -59,8 +59,12 @@ async def getSongName(fileName):
 
 def getSongLyrics(songName):
     genius = Genius(GENIUS_API_TOKEN)
-    return genius.search_song(songName).lyrics
-
+    for i in range(3):
+        try:
+            return genius.search_song(songName).lyrics
+        except:
+            print('error getting song name')
+    return "Could not get lyrics"
 
 def downloadPlaylist(playlistLink):
     downloadManager = spotube.DownloadManager(SPOTIFY_ID, SPOTIFY_SECRET, GENIUS_API_TOKEN)
@@ -139,7 +143,7 @@ async def handlePlaylistUpload(request):
 
 @csrf_exempt
 async def exampleSingleFile(request):
-    path = 'Example/example1/'
+    path = 'Example/Paradise/'
     songName = await getSongName(path + 'audio.mp3')
     songLyrics = getSongLyrics(songName)
 
@@ -165,4 +169,3 @@ async def examplePlaylist(request):
     return JsonResponse(response_data)
 
 
-# 428 84 101 276 18
