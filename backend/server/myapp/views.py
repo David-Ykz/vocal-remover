@@ -21,6 +21,19 @@ SPOTIFY_ID = os.getenv('SPOTIFY_ID')
 SPOTIFY_SECRET = os.getenv('SPOTIFY_SECRET')
 GENIUS_API_TOKEN = os.getenv('GENIUS_API_TOKEN')
 
+
+def saveFileSize(path):
+    try:
+        with open('saved_file_sizes', 'r') as file:
+            originalSize = int(file.read().strip())
+    except:
+        originalSize = 0
+    size = os.path.getsize(path)
+    print("total bytes processed: " + str(originalSize + size))
+    with open('saved_file_sizes', 'w') as output_file:
+        output_file.write(str(originalSize + size))
+
+
 def readAudioToString(path):
     if os.path.exists(path):
         with open(path, 'rb') as file:
@@ -36,19 +49,18 @@ def saveAudio(file):
             destination.write(chunk)
 
 def splitAudio(filePath, song):
-    DEMUCS_MODEL_NAME = 'htdemucs'
     DEMUCS_MODEL_NAME = 'mdx_extra'
     start = time.time()
-#    demucs.separate.main(['--mp3', '--two-stems', 'vocals', filePath])
+    saveFileSize(filePath)
     demucs.separate.main(['--mp3', '--two-stems', 'vocals', '-n', 'mdx_extra', '--overlap', '0.1', filePath])
     end = time.time()
     print("time taken to split audio: " + str(end - start))
     vocalString = readAudioToString('separated/' + DEMUCS_MODEL_NAME + '/' + song + '/vocals.mp3')
     nonVocalString = readAudioToString('separated/' + DEMUCS_MODEL_NAME + '/' + song + '/no_vocals.mp3')
 
-#    os.remove('separated/' + DEMUCS_MODEL_NAME + '/' + song + '/vocals.mp3')
- #   os.remove('separated/' + DEMUCS_MODEL_NAME + '/' + song + '/no_vocals.mp3')
-  #  os.rmdir('separated/' + DEMUCS_MODEL_NAME + '/' + song)
+    os.remove('separated/' + DEMUCS_MODEL_NAME + '/' + song + '/vocals.mp3')
+    os.remove('separated/' + DEMUCS_MODEL_NAME + '/' + song + '/no_vocals.mp3')
+    os.rmdir('separated/' + DEMUCS_MODEL_NAME + '/' + song)
 
     return vocalString, nonVocalString
 
@@ -113,7 +125,7 @@ async def handleFileUpload(request):
     saveAudio(audioFile)
     vocals, nonVocals = splitAudio('audio.mp3', 'audio')
     songName = await getSongName('audio.mp3')
-#    os.remove('audio.mp3')
+    os.remove('audio.mp3')
     songLyrics = getSongLyrics(songName)
 
     response_data = {
