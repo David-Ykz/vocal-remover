@@ -126,7 +126,7 @@ const UploadForm = ({onServerResponse}) => {
                             <></>
                         }
                         <div style={{display: 'flex', justifyContent: 'center', marginTop: '160px'}}>
-                            <button onClick={getExample} style={{...uploadControlStyle, fontSize: '18px'}}>Try an example playlist</button>
+                            <button onClick={getExample} style={{...uploadControlStyle, fontSize: '18px'}}>Try an example</button>
                         </div>
                         <div style={{display: 'flex', justifyContent: 'center', marginTop: '20px'}}>
                             <button onClick={switchModes} style={{...uploadControlStyle, fontSize: '18px'}}>Upload a playlist instead</button>

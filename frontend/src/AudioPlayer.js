@@ -23,7 +23,6 @@ const AudioPlayer = ({ vocalsUrl, nonVocalsUrl, songName, songLyrics}) => {
             <div style={{position: 'absolute', marginTop: '5%', marginLeft: '60%', backgroundColor: '#6753c9', width: '32%', height: '80%', overflowY: 'auto'}}>
                 <p style={{fontFamily: 'Segoe UI', fontSize: '24px', color: 'white', marginLeft: '10px', marginTop: '10px'}}>{songName}</p>
                 <LyricsVisualizer lyrics={songLyrics}/>
-
             </div>
         </div>
     );

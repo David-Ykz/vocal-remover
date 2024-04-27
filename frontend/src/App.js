@@ -68,26 +68,32 @@ const App = () => {
     return (
         <div>
             {showAudioPlayer ?
-                <AudioPlayer vocalsUrl={vocalsUrl} nonVocalsUrl={noVocalsUrl} songName={songName} songLyrics={songLyrics}/>
-                :
-                <UploadForm onServerResponse={onServerResponse} style={{display: 'flex', justifyContent: 'center', marginTop: '10%'}}/>
-            }
-
-            {isPlaylist ?
                 (
-                    <div>
-
-                        <div style={{position: 'absolute', bottom: '15%', marginLeft: '5%'}}>
-                            <button onClick={previousSong} style={{ backgroundColor: '#4E4096', color: 'white', border: 'none', fontSize: '16px', padding: '10px', borderRadius: '10px', fontFamily: 'Segoe UI'}}>Previous Song</button>
-                            <button onClick={nextSong} style={{ backgroundColor: '#4E4096', color: 'white', border: 'none', fontSize: '16px', padding: '10px', borderRadius: '10px', fontFamily: 'Segoe UI', marginLeft: '10px'}}>Next Song</button>
+                    <>
+                        <AudioPlayer vocalsUrl={vocalsUrl} nonVocalsUrl={noVocalsUrl} songName={songName} songLyrics={songLyrics}/>
+                        <div style={{position: 'absolute', bottom: '15%', marginLeft: '45%'}}>
+                            <button onClick={() => setShowAudioPlayer(false)} style={{ backgroundColor: '#4E4096', color: 'white', border: 'none', fontSize: '16px', padding: '10px', borderRadius: '10px', fontFamily: 'Segoe UI', marginLeft: '10px'}}>Back</button>
                         </div>
-                        <p style={{color: 'white', fontSize: '24px', fontFamily: 'Segoe UI', marginLeft: '5%', position: 'absolute', bottom: '5%'}}>
-                            {playlistIndex + 1} / {playlistVocals.length}
-                        </p>
-                    </div>
+                        {isPlaylist ?
+                            (
+                                <div>
+
+                                    <div style={{position: 'absolute', bottom: '15%', marginLeft: '5%'}}>
+                                        <button onClick={previousSong} style={{ backgroundColor: '#4E4096', color: 'white', border: 'none', fontSize: '16px', padding: '10px', borderRadius: '10px', fontFamily: 'Segoe UI'}}>Previous Song</button>
+                                        <button onClick={nextSong} style={{ backgroundColor: '#4E4096', color: 'white', border: 'none', fontSize: '16px', padding: '10px', borderRadius: '10px', fontFamily: 'Segoe UI', marginLeft: '10px'}}>Next Song</button>
+                                    </div>
+                                    <p style={{color: 'white', fontSize: '24px', fontFamily: 'Segoe UI', marginLeft: '5%', position: 'absolute', bottom: '5%'}}>
+                                        {playlistIndex + 1} / {playlistVocals.length}
+                                    </p>
+                                </div>
+                            )
+                            :
+                            <></>
+                        }
+                    </>
                 )
                 :
-                <></>
+                <UploadForm onServerResponse={onServerResponse} style={{display: 'flex', justifyContent: 'center', marginTop: '10%'}}/>
             }
         </div>
     );
