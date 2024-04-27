@@ -9,4 +9,3 @@ backend/server/.cache
 backend/server/ffmpeg.exe
 backend/server/ffplay.exe
 backend/server/ffprobe.exe
-/backend/server/Example
