@@ -36,13 +36,19 @@ def saveAudio(file):
             destination.write(chunk)
 
 def splitAudio(filePath, song):
-    demucs.separate.main(['--mp3', '--two-stems', 'vocals', '-n', 'mdx_extra', filePath])
-    vocalString = readAudioToString('separated/mdx_extra/' + song + '/vocals.mp3')
-    nonVocalString = readAudioToString('separated/mdx_extra/' + song + '/no_vocals.mp3')
+    DEMUCS_MODEL_NAME = 'htdemucs'
+    DEMUCS_MODEL_NAME = 'mdx_extra'
+    start = time.time()
+#    demucs.separate.main(['--mp3', '--two-stems', 'vocals', filePath])
+    demucs.separate.main(['--mp3', '--two-stems', 'vocals', '-n', 'mdx_extra', '--overlap', '0.1', filePath])
+    end = time.time()
+    print("time taken to split audio: " + str(end - start))
+    vocalString = readAudioToString('separated/' + DEMUCS_MODEL_NAME + '/' + song + '/vocals.mp3')
+    nonVocalString = readAudioToString('separated/' + DEMUCS_MODEL_NAME + '/' + song + '/no_vocals.mp3')
 
-    os.remove('separated/mdx_extra/' + song + '/vocals.mp3')
-    os.remove('separated/mdx_extra/' + song + '/no_vocals.mp3')
-    os.rmdir('separated/mdx_extra/' + song)
+#    os.remove('separated/' + DEMUCS_MODEL_NAME + '/' + song + '/vocals.mp3')
+ #   os.remove('separated/' + DEMUCS_MODEL_NAME + '/' + song + '/no_vocals.mp3')
+  #  os.rmdir('separated/' + DEMUCS_MODEL_NAME + '/' + song)
 
     return vocalString, nonVocalString
 
@@ -80,13 +86,30 @@ async def convertPlaylist():
         songLyrics.append(lyrics)
     return separatedVocals, separatedNonVocals, songNames, songLyrics
 
+async def convertExamplePlaylist():
+    files = os.listdir('./Example')
+    separatedVocals = []
+    separatedNonVocals = []
+    songNames = []
+    songLyrics = []
+    for file in files:
+        filePath = './Example/' + file
+        separatedVocals.append(readAudioToString(filePath + '/vocals.mp3'))
+        separatedNonVocals.append(readAudioToString(filePath + '/no_vocals.mp3'))
+        songName = await getSongName(filePath + '/audio.mp3')
+        songNames.append(songName)
+        lyrics = getSongLyrics(songName)
+        songLyrics.append(lyrics)
+    return separatedVocals, separatedNonVocals, songNames, songLyrics
+
+
 @csrf_exempt
 async def handleFileUpload(request):
     audioFile = request.FILES['file']
     saveAudio(audioFile)
     vocals, nonVocals = splitAudio('audio.mp3', 'audio')
     songName = await getSongName('audio.mp3')
-    os.remove('audio.mp3')
+#    os.remove('audio.mp3')
     songLyrics = getSongLyrics(songName)
 
     response_data = {
@@ -102,7 +125,6 @@ async def handleFileUpload(request):
 async def handlePlaylistUpload(request):
     playlistLink = request.POST['link']
     print(playlistLink)
-#    playlistLink = "https://open.spotify.com/playlist/0HIIb9KTmD5kmU61L4r1o4?si=26eb665e3110432b"
     downloadPlaylist(playlistLink)
     vocals, nonVocals, songNames, songLyrics = await convertPlaylist()
     response_data = {
@@ -114,3 +136,33 @@ async def handlePlaylistUpload(request):
     }
     return JsonResponse(response_data)
 
+
+@csrf_exempt
+async def exampleSingleFile(request):
+    path = 'Example/example1/'
+    songName = await getSongName(path + 'audio.mp3')
+    songLyrics = getSongLyrics(songName)
+
+    response_data = {
+        'response_type': 'single',
+        'vocals': readAudioToString(path + 'vocals.mp3'),
+        'no_vocals': readAudioToString(path + 'no_vocals.mp3'),
+        'name': songName,
+        'lyrics': songLyrics
+    }
+    return JsonResponse(response_data)
+
+@csrf_exempt
+async def examplePlaylist(request):
+    vocals, nonVocals, songNames, songLyrics = await convertExamplePlaylist()
+    response_data = {
+        'response_type': 'playlist',
+        'vocals': vocals,
+        'no_vocals': nonVocals,
+        'names': songNames,
+        'lyrics': songLyrics
+    }
+    return JsonResponse(response_data)
+
+
+# 428 84 101 276 18

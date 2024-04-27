@@ -59,6 +59,19 @@ const UploadForm = ({onServerResponse}) => {
         setDisplayUploadPrompt(false);
     }
 
+    async function getExample() {
+        setDisplayUploadPrompt(true);
+        const url = 'http://localhost:8000/api/example_' + mode;
+        try {
+            const response = await axios.get(url);
+            console.log(response.data);
+            onServerResponse(response.data);
+        } catch (error) {
+            console.error('Error uploading file:', error);
+        }
+        setDisplayUploadPrompt(false);
+    }
+
     return (
         <div>
             {mode === "playlist" ?
@@ -84,7 +97,10 @@ const UploadForm = ({onServerResponse}) => {
                             :
                             <></>
                         }
-                        <div style={{display: 'flex', justifyContent: 'center', marginTop: '250px'}}>
+                        <div style={{display: 'flex', justifyContent: 'center', marginTop: '200px'}}>
+                            <button onClick={getExample} style={{...uploadControlStyle, fontSize: '18px'}}>Try an example playlist</button>
+                        </div>
+                        <div style={{display: 'flex', justifyContent: 'center', marginTop: '20px'}}>
                             <button onClick={switchModes} style={{...uploadControlStyle, fontSize: '18px'}}>Upload a single file instead</button>
                         </div>
                     </div>
