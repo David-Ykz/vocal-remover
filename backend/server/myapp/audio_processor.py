@@ -1,6 +1,3 @@
-# Create your views here.
-# myapp/views.py
-from threading import Thread
 import base64
 import time
 import os
@@ -10,9 +7,6 @@ import demucs.separate # requires "pip install soundfile"
 from shazamio import Shazam
 from lyricsgenius import Genius
 import spotube
-
-from django.http import StreamingHttpResponse, JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 
 load_dotenv()
 SPOTIFY_ID = os.getenv('SPOTIFY_ID')
@@ -37,11 +31,7 @@ def splitAudio(path):
         except:
             originalSize = 0
         size = os.path.getsize(path)
-        bSize = originalSize + size
-        kbSize = int(bSize/1024)
-        mbSize = int(kbSize/1024)
-        gbSize = int(mbSize/1024)
-        print(f"b: {bSize} | kb: {kbSize} | mb: {mbSize} | gb: {gbSize}")
+        print("total bytes processed: " + str(originalSize + size))
         with open('saved_file_sizes', 'w') as output_file:
             output_file.write(str(originalSize + size))
 
@@ -63,10 +53,7 @@ def readSeparatedAudio():
 
     vocalString = readAudioToString('/vocals.mp3')
     nonVocalString = readAudioToString('/no_vocals.mp3')
-    os.remove(songPath + '/vocals.mp3')
-    os.remove(songPath + '/no_vocals.mp3')
-    os.rmdir(songPath)
-
+    os.rmdir(path)
     return vocalString, nonVocalString
 
 async def getSongInfo(path):
@@ -87,14 +74,12 @@ async def getSongInfo(path):
                 print('error getting song name')
         return "Could not get lyrics"
 
-    songLyrics = getSongLyrics()
-
-    return songName, songLyrics
+    return songName, getSongLyrics()
 
 async def convertSong(song):
     splitAudio(song)
     vocals, nonVocals = readSeparatedAudio()
-    songName, songLyrics = await getSongInfo(song)
+    songName, songLyrics = getSongInfo(song)
 
     return {
         'vocals': vocals,
@@ -123,65 +108,19 @@ def getLatestSong():
         convertedSongs = []
     return numSongsConverted, latestSong
 
-@csrf_exempt
-async def handleFileUpload(request):
-    audioFile = request.FILES['file']
-    saveAudio(audioFile)
-
-    response_data = {
-        'response_type': 'single',
-        'song_data': await convertSong('audio.mp3')
-    }
-    return JsonResponse(response_data)
-
-@csrf_exempt
-async def handlePlaylistUpload(request):
-    playlistLink = request.POST['link']
-    thread = Thread(target=convertPlaylist, args=(playlistLink, ))
-    thread.start()
-
-    response_data = {
-        'test': 'test'
-    }
-
-    return JsonResponse(response_data)
-
-@csrf_exempt
-async def handlePlaylistCheck(request):
-    numSongs, latestSong = getLatestSong()
-    response_data = {
-        'response_type': 'playlist',
-        'song_number': numSongs,
-        'song_data': latestSong
-    }
-    return JsonResponse(response_data)
-
-
-
-# @csrf_exempt
-# async def exampleSingleFile(request):
-#     path = 'Example/Paradise/'
-#     songName = await getSongName(path + 'audio.mp3')
-#     songLyrics = getSongLyrics(songName)
+# async def convertExamplePlaylist():
+#     files = os.listdir('./Example')
+#     separatedVocals = []
+#     separatedNonVocals = []
+#     songNames = []
+#     songLyrics = []
+#     for file in files:
+#         filePath = './Example/' + file
+#         separatedVocals.append(readAudioToString(filePath + '/vocals.mp3'))
+#         separatedNonVocals.append(readAudioToString(filePath + '/no_vocals.mp3'))
+#         songName = await getSongName(filePath + '/audio.mp3')
+#         songNames.append(songName)
+#         lyrics = getSongLyrics(songName)
+#         songLyrics.append(lyrics)
+#     return separatedVocals, separatedNonVocals, songNames, songLyrics
 #
-#     response_data = {
-#         'response_type': 'single',
-#         'vocals': readAudioToString(path + 'vocals.mp3'),
-#         'no_vocals': readAudioToString(path + 'no_vocals.mp3'),
-#         'name': songName,
-#         'lyrics': songLyrics
-#     }
-#     return JsonResponse(response_data)
-#
-# @csrf_exempt
-# async def examplePlaylist(request):
-#     vocals, nonVocals, songNames, songLyrics = await convertExamplePlaylist()
-#     response_data = {
-#         'response_type': 'playlist',
-#         'vocals': vocals,
-#         'no_vocals': nonVocals,
-#         'names': songNames,
-#         'lyrics': songLyrics
-#     }
-#     return JsonResponse(response_data)
-

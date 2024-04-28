@@ -49,10 +49,18 @@ const UploadForm = ({onServerResponse}) => {
         formData.append('link', link);
         try {
             const response = await axios.post(url, formData, {
-                headers: {'Content-Type': 'multipart/form-data'}
+                headers: {'Content-Type': 'multipart/form-data'},
+                responseType: "stream"
             });
-            console.log(response.data);
-            onServerResponse(response.data);
+            const reader = response.data.getReader();
+            let isReading = true;
+            while (isReading) {
+                const {done, value} = await reader.read();
+                const chunk = new TextDecoder().decode(value);
+                isReading = done;
+                onServerResponse(JSON.parse(chunk));
+            }
+            console.log("done reading everything");
         } catch (error) {
             console.error('Error uploading file:', error);
         }

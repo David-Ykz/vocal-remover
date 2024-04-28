@@ -24,12 +24,14 @@ const App = () => {
     function onServerResponse(response) {
         console.log(response);
         if (response.response_type === "single") {
+            response = response.song_data;
             setVocalsUrl(createAudioUrl(response.vocals));
             setNoVocalsUrl(createAudioUrl(response.no_vocals));
             setSongName(response.name);
             setSongLyrics(response.lyrics);
             setIsPlaylist(false);
         } else if (response.response_type === "playlist") {
+            response = response.song_data;
             playlistVocals = response.vocals;
             playlistNonVocals = response.no_vocals;
             playlistSongNames = response.names;
@@ -63,7 +65,6 @@ const App = () => {
         setSongName(playlistSongNames[index]);
         setSongLyrics(playlistSongLyrics[index]);
     }
-
 
     return (
         <div>
