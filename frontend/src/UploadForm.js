@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import axios from 'axios';
 
-const UploadForm = ({onServerResponse, setIsStillProcessing}) => {
+const UploadForm = ({onServerResponse, setIsStillProcessing, startCheckingFunction}) => {
     const uploadControlStyle = { backgroundColor: '#4E4096', color: 'white', border: 'none', fontSize: '24px', padding: '10px', borderRadius: '10px', fontFamily: 'Segoe UI'}
 
     const [file, setFile] = useState(null);
@@ -49,6 +49,7 @@ const UploadForm = ({onServerResponse, setIsStillProcessing}) => {
         formData.append('link', link);
         try {
             setIsStillProcessing(true);
+            startCheckingFunction();
             const response = await axios.post(url, formData, {
                 headers: {'Content-Type': 'multipart/form-data'}
             });

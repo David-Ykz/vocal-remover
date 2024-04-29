@@ -108,6 +108,7 @@ async def convertSong(song):
     splitAudio(song)
     vocals, nonVocals = readSeparatedAudio()
     songName, songLyrics = await getSongInfo(song)
+    os.remove(song)
 
     return {
         'vocals': vocals,
@@ -123,9 +124,6 @@ def downloadPlaylist(playlistLink):
 async def convertPlaylist():
     global isFinishedConverting
     isFinishedConverting = False
-    print("fff")
-    print(*os.listdir(PLAYLIST_DOWNLOAD_DIRECTORY))
-    print("ggg")
     for path in os.listdir(PLAYLIST_DOWNLOAD_DIRECTORY):
         convertedSongs.append(await convertSong(PLAYLIST_DOWNLOAD_DIRECTORY + path))
     isFinishedConverting = True

@@ -3,6 +3,7 @@ import AudioPlayer from "./AudioPlayer";
 import UploadForm from "./UploadForm.js";
 import {createAudioUrl} from "./AudioProcessor";
 import axios from "axios";
+import {render} from "react-dom";
 
 var playlistVocals = [];
 var playlistNonVocals = [];
@@ -20,8 +21,9 @@ const App = () => {
     const [showAudioPlayer, setShowAudioPlayer] = useState(false);
     const [isPlaylist, setIsPlaylist] = useState(false);
     const [isStillProcessing, setIsStillProcessing] = useState(false);
+    const [rerenderToggle, setRerenderToggle] = useState(false);
+    var keepPolling = false;
 
-    setInterval(checkPlaylistProgress, 30000);
 
     function addToPlaylist(response) {
         if (response.song_number > playlistVocals.length) {
@@ -33,22 +35,26 @@ const App = () => {
         }
     }
 
-    async function checkPlaylistProgress() {
-        if (!isStillProcessing)
-            return;
+//    setInterval(checkPlaylistProgress, 30000);
 
-        const url = 'http://localhost:8000/api/latest_song/';
-        try {
-            const response = await axios.get(url);
-            const beforeLength = playlistVocals.length;
-            addToPlaylist(response.data);
-            if (beforeLength === 0 && playlistVocals.length > 0) {
-                updateAudioPlayer(0);
-                setShowAudioPlayer(true);
-                setIsPlaylist(true);
+
+    async function checkPlaylistProgress() {
+        console.log('in func: ' + keepPolling);
+        if (keepPolling) {
+            const url = 'http://localhost:8000/api/latest_song/';
+            try {
+                const response = await axios.get(url);
+                const beforeLength = playlistVocals.length;
+                addToPlaylist(response.data);
+                if (beforeLength === 0 && playlistVocals.length > 0) {
+                    updateAudioPlayer(0);
+                    setShowAudioPlayer(true);
+                    setIsPlaylist(true);
+                }
+            } catch (error) {
+                console.error('Error uploading file:', error);
             }
-        } catch (error) {
-            console.error('Error uploading file:', error);
+            setTimeout(checkPlaylistProgress, 10000);
         }
     }
 
@@ -65,7 +71,9 @@ const App = () => {
         } else if (response.response_type === "playlist_finished") {
             console.log('done processing');
             addToPlaylist(response);
-            setIsStillProcessing(false);
+            keepPolling = false;
+            setRerenderToggle(!rerenderToggle);
+            console.log('after setting: ' + isStillProcessing);
         }
     }
 
@@ -93,8 +101,13 @@ const App = () => {
 
     function displayUploadForm() {
         setShowAudioPlayer(false);
-        setIsStillProcessing(false);
+        keepPolling = false;
         setIsPlaylist(false);
+    }
+
+    async function startCheckingFunction() {
+        keepPolling = true;
+        setTimeout(checkPlaylistProgress, 10000);
     }
 
     return (
@@ -125,7 +138,7 @@ const App = () => {
                     </>
                 )
                 :
-                <UploadForm onServerResponse={onServerResponse} setIsStillProcessing={setIsStillProcessing} style={{display: 'flex', justifyContent: 'center', marginTop: '10%'}}/>
+                <UploadForm onServerResponse={onServerResponse} setIsStillProcessing={setIsStillProcessing} startCheckingFunction={startCheckingFunction} style={{display: 'flex', justifyContent: 'center', marginTop: '10%'}}/>
             }
         </div>
     );
