@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import axios from 'axios';
 
-const UploadForm = ({onServerResponse}) => {
+const UploadForm = ({onServerResponse, setIsStillProcessing}) => {
     const uploadControlStyle = { backgroundColor: '#4E4096', color: 'white', border: 'none', fontSize: '24px', padding: '10px', borderRadius: '10px', fontFamily: 'Segoe UI'}
 
     const [file, setFile] = useState(null);
@@ -48,19 +48,11 @@ const UploadForm = ({onServerResponse}) => {
         console.log(link)
         formData.append('link', link);
         try {
+            setIsStillProcessing(true);
             const response = await axios.post(url, formData, {
-                headers: {'Content-Type': 'multipart/form-data'},
-                responseType: "stream"
+                headers: {'Content-Type': 'multipart/form-data'}
             });
-            const reader = response.data.getReader();
-            let isReading = true;
-            while (isReading) {
-                const {done, value} = await reader.read();
-                const chunk = new TextDecoder().decode(value);
-                isReading = done;
-                onServerResponse(JSON.parse(chunk));
-            }
-            console.log("done reading everything");
+            onServerResponse(response.data);
         } catch (error) {
             console.error('Error uploading file:', error);
         }

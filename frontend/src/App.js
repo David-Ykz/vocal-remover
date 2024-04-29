@@ -19,7 +19,38 @@ const App = () => {
     const [songLyrics, setSongLyrics] = useState('');
     const [showAudioPlayer, setShowAudioPlayer] = useState(false);
     const [isPlaylist, setIsPlaylist] = useState(false);
+    const [isStillProcessing, setIsStillProcessing] = useState(false);
 
+    setInterval(checkPlaylistProgress, 30000);
+
+    function addToPlaylist(response) {
+        if (response.song_number > playlistVocals.length) {
+            console.log('added');
+            playlistVocals.push(response.song_data.vocals);
+            playlistNonVocals.push(response.song_data.no_vocals);
+            playlistSongNames.push(response.song_data.names);
+            playlistSongLyrics.push(response.song_data.lyrics);
+        }
+    }
+
+    async function checkPlaylistProgress() {
+        if (!isStillProcessing)
+            return;
+
+        const url = 'http://localhost:8000/api/latest_song/';
+        try {
+            const response = await axios.get(url);
+            const beforeLength = playlistVocals.length;
+            addToPlaylist(response.data);
+            if (beforeLength === 0 && playlistVocals.length > 0) {
+                updateAudioPlayer(0);
+                setShowAudioPlayer(true);
+                setIsPlaylist(true);
+            }
+        } catch (error) {
+            console.error('Error uploading file:', error);
+        }
+    }
 
     function onServerResponse(response) {
         console.log(response);
@@ -30,18 +61,12 @@ const App = () => {
             setSongName(response.name);
             setSongLyrics(response.lyrics);
             setIsPlaylist(false);
-        } else if (response.response_type === "playlist") {
-            response = response.song_data;
-            playlistVocals = response.vocals;
-            playlistNonVocals = response.no_vocals;
-            playlistSongNames = response.names;
-            playlistSongLyrics = response.lyrics;
-
-            updateAudioPlayer(0);
-
-            setIsPlaylist(true);
+            setShowAudioPlayer(true);
+        } else if (response.response_type === "playlist_finished") {
+            console.log('done processing');
+            addToPlaylist(response);
+            setIsStillProcessing(false);
         }
-        setShowAudioPlayer(true);
     }
 
     function nextSong() {
@@ -66,6 +91,12 @@ const App = () => {
         setSongLyrics(playlistSongLyrics[index]);
     }
 
+    function displayUploadForm() {
+        setShowAudioPlayer(false);
+        setIsStillProcessing(false);
+        setIsPlaylist(false);
+    }
+
     return (
         <div>
             {showAudioPlayer ?
@@ -73,7 +104,7 @@ const App = () => {
                     <>
                         <AudioPlayer vocalsUrl={vocalsUrl} nonVocalsUrl={noVocalsUrl} songName={songName} songLyrics={songLyrics}/>
                         <div style={{position: 'absolute', bottom: '15%', marginLeft: '45%'}}>
-                            <button onClick={() => setShowAudioPlayer(false)} style={{ backgroundColor: '#4E4096', color: 'white', border: 'none', fontSize: '16px', padding: '10px', borderRadius: '10px', fontFamily: 'Segoe UI', marginLeft: '10px'}}>Back</button>
+                            <button onClick={displayUploadForm} style={{ backgroundColor: '#4E4096', color: 'white', border: 'none', fontSize: '16px', padding: '10px', borderRadius: '10px', fontFamily: 'Segoe UI', marginLeft: '10px'}}>Back</button>
                         </div>
                         {isPlaylist ?
                             (
@@ -94,7 +125,7 @@ const App = () => {
                     </>
                 )
                 :
-                <UploadForm onServerResponse={onServerResponse} style={{display: 'flex', justifyContent: 'center', marginTop: '10%'}}/>
+                <UploadForm onServerResponse={onServerResponse} setIsStillProcessing={setIsStillProcessing} style={{display: 'flex', justifyContent: 'center', marginTop: '10%'}}/>
             }
         </div>
     );

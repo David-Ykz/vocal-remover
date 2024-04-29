@@ -1,17 +1,21 @@
 # Create your views here.
 # myapp/views.py
+import threading
+from contextlib import contextmanager
 from threading import Thread
 import base64
 import time
 import os
+import asyncio
 from dotenv import load_dotenv
+from celery import shared_task
 
 import demucs.separate # requires "pip install soundfile"
 from shazamio import Shazam
 from lyricsgenius import Genius
 import spotube
 
-from django.http import StreamingHttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
 load_dotenv()
@@ -19,10 +23,20 @@ SPOTIFY_ID = os.getenv('SPOTIFY_ID')
 SPOTIFY_SECRET = os.getenv('SPOTIFY_SECRET')
 GENIUS_API_TOKEN = os.getenv('GENIUS_API_TOKEN')
 DEMUCS_MODEL_NAME = 'mdx_extra'
-PLAYLIST_DOWNLOAD_DIRECTORY = './Songs'
+PLAYLIST_DOWNLOAD_DIRECTORY = './Songs/'
 
 convertedSongs = []
 isFinishedConverting = True
+
+class PlaylistResponse(JsonResponse):
+    def close(self):
+        super(PlaylistResponse, self).close()
+        print('printed after')
+        thread = threading.Thread(target=convertPlaylist, args=())
+        thread.start()
+        thread.join()
+#        asyncio.create_task(convertPlaylist())
+
 
 def saveAudio(file):
     with open('audio.mp3', 'wb') as destination:
@@ -73,7 +87,6 @@ async def getSongInfo(path):
     async def getSongName():
         shazam = Shazam()
         song = await shazam.recognize(path)
-        os.remove('audio.mp3')
         return song["track"]["share"]["subject"]
 
     songName = await getSongName()
@@ -107,17 +120,20 @@ def downloadPlaylist(playlistLink):
     downloadManager = spotube.DownloadManager(SPOTIFY_ID, SPOTIFY_SECRET, GENIUS_API_TOKEN)
     downloadManager.start_downloaderWithoutThread(playlistLink)
 
-def convertPlaylist(playlistLink):
+async def convertPlaylist():
     global isFinishedConverting
     isFinishedConverting = False
-    downloadPlaylist(playlistLink)
+    print("fff")
+    print(*os.listdir(PLAYLIST_DOWNLOAD_DIRECTORY))
+    print("ggg")
     for path in os.listdir(PLAYLIST_DOWNLOAD_DIRECTORY):
-        convertedSongs.append(convertSong(PLAYLIST_DOWNLOAD_DIRECTORY + path))
+        convertedSongs.append(await convertSong(PLAYLIST_DOWNLOAD_DIRECTORY + path))
     isFinishedConverting = True
 
 def getLatestSong():
     global convertedSongs
     numSongsConverted = len(convertedSongs)
+
     latestSong = convertedSongs[numSongsConverted - 1]
     if isFinishedConverting:
         convertedSongs = []
@@ -137,17 +153,30 @@ async def handleFileUpload(request):
 @csrf_exempt
 async def handlePlaylistUpload(request):
     playlistLink = request.POST['link']
-    thread = Thread(target=convertPlaylist, args=(playlistLink, ))
-    thread.start()
+    downloadPlaylist(playlistLink)
+    await convertPlaylist()
 
+    numSongs, latestSong = getLatestSong()
     response_data = {
-        'test': 'test'
+        'response_type': 'playlist_finished',
+        'song_number': numSongs,
+        'song_data': latestSong
     }
-
     return JsonResponse(response_data)
+
+
+    #    thread = Thread(target=convertPlaylist, args=(playlistLink, ))
+    #   thread.start()
+    #  thread.join()
 
 @csrf_exempt
 async def handlePlaylistCheck(request):
+    if len(convertedSongs) == 0:
+        response_data = {
+            'response_type': 'playlist',
+            'song_number': 0
+        }
+        return JsonResponse(response_data)
     numSongs, latestSong = getLatestSong()
     response_data = {
         'response_type': 'playlist',
