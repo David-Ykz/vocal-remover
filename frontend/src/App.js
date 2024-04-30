@@ -21,9 +21,18 @@ const App = () => {
     const [showAudioPlayer, setShowAudioPlayer] = useState(false);
     const [isPlaylist, setIsPlaylist] = useState(false);
     const [isStillProcessing, setIsStillProcessing] = useState(false);
-    const [rerenderToggle, setRerenderToggle] = useState(false);
+//    const [rerenderToggle, setRerenderToggle] = useState(false);
+    const [numSongs, setNumSongs] = useState(0);
     var keepPolling = false;
 
+
+    function clearPlaylists() {
+        playlistVocals = [];
+        playlistNonVocals = [];
+        playlistSongNames = []
+        playlistSongLyrics = [];
+
+    }
 
     function addToPlaylist(response) {
         if (response.song_number > playlistVocals.length) {
@@ -32,6 +41,7 @@ const App = () => {
             playlistNonVocals.push(response.song_data.no_vocals);
             playlistSongNames.push(response.song_data.names);
             playlistSongLyrics.push(response.song_data.lyrics);
+            setNumSongs(playlistVocals.length);
         }
     }
 
@@ -46,6 +56,7 @@ const App = () => {
                 const response = await axios.get(url);
                 const beforeLength = playlistVocals.length;
                 addToPlaylist(response.data);
+//                setRerenderToggle(!rerenderToggle);
                 if (beforeLength === 0 && playlistVocals.length > 0) {
                     updateAudioPlayer(0);
                     setShowAudioPlayer(true);
@@ -72,7 +83,7 @@ const App = () => {
             console.log('done processing');
             addToPlaylist(response);
             keepPolling = false;
-            setRerenderToggle(!rerenderToggle);
+    //        setRerenderToggle(!rerenderToggle);
             console.log('after setting: ' + isStillProcessing);
         }
     }
@@ -103,6 +114,8 @@ const App = () => {
         setShowAudioPlayer(false);
         keepPolling = false;
         setIsPlaylist(false);
+        clearPlaylists();
+        playlistIndex = 0;
     }
 
     async function startCheckingFunction() {
@@ -128,7 +141,7 @@ const App = () => {
                                         <button onClick={nextSong} style={{ backgroundColor: '#4E4096', color: 'white', border: 'none', fontSize: '16px', padding: '10px', borderRadius: '10px', fontFamily: 'Segoe UI', marginLeft: '10px'}}>Next Song</button>
                                     </div>
                                     <p style={{color: 'white', fontSize: '24px', fontFamily: 'Segoe UI', marginLeft: '5%', position: 'absolute', bottom: '5%'}}>
-                                        {playlistIndex + 1} / {playlistVocals.length}
+                                        {playlistIndex + 1} / {numSongs}
                                     </p>
                                 </div>
                             )

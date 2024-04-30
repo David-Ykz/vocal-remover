@@ -86,8 +86,11 @@ def readSeparatedAudio():
 async def getSongInfo(path):
     async def getSongName():
         shazam = Shazam()
-        song = await shazam.recognize(path)
-        return song["track"]["share"]["subject"]
+        try:
+            song = await shazam.recognize(path)
+            return song["track"]["share"]["subject"]
+        except:
+            return ""
 
     songName = await getSongName()
 
@@ -161,11 +164,6 @@ async def handlePlaylistUpload(request):
         'song_data': latestSong
     }
     return JsonResponse(response_data)
-
-
-    #    thread = Thread(target=convertPlaylist, args=(playlistLink, ))
-    #   thread.start()
-    #  thread.join()
 
 @csrf_exempt
 async def handlePlaylistCheck(request):
