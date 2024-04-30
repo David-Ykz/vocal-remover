@@ -1,14 +1,10 @@
 # Create your views here.
 # myapp/views.py
 import threading
-from contextlib import contextmanager
-from threading import Thread
 import base64
 import time
 import os
-import asyncio
 from dotenv import load_dotenv
-from celery import shared_task
 
 import demucs.separate # requires "pip install soundfile"
 from shazamio import Shazam
@@ -24,19 +20,11 @@ SPOTIFY_SECRET = os.getenv('SPOTIFY_SECRET')
 GENIUS_API_TOKEN = os.getenv('GENIUS_API_TOKEN')
 DEMUCS_MODEL_NAME = 'mdx_extra'
 PLAYLIST_DOWNLOAD_DIRECTORY = './Songs/'
+EXAMPLE_PATH = './Example/Paradise/'
+EXAMPLE_PLAYLIST_PATH = './Example/'
 
 convertedSongs = []
 isFinishedConverting = True
-
-class PlaylistResponse(JsonResponse):
-    def close(self):
-        super(PlaylistResponse, self).close()
-        print('printed after')
-        thread = threading.Thread(target=convertPlaylist, args=())
-        thread.start()
-        thread.join()
-#        asyncio.create_task(convertPlaylist())
-
 
 def saveAudio(file):
     with open('audio.mp3', 'wb') as destination:
@@ -66,24 +54,23 @@ def splitAudio(path):
     end = time.time()
     print("time taken to split audio: " + str(end - start))
 
-def readSeparatedAudio():
-    path = 'separated/' + DEMUCS_MODEL_NAME
-    songPath = path + '/' + os.listdir(path)[0]
-
+def readSeparatedAudio(path, delete):
     def readAudioToString(audio):
-        with open(songPath + audio, 'rb') as file:
+        with open(path + audio, 'rb') as file:
             data = file.read()
         return base64.b64encode(data).decode('utf-8')
 
     vocalString = readAudioToString('/vocals.mp3')
     nonVocalString = readAudioToString('/no_vocals.mp3')
-    os.remove(songPath + '/vocals.mp3')
-    os.remove(songPath + '/no_vocals.mp3')
-    os.rmdir(songPath)
+    if delete:
+        os.remove(path + '/vocals.mp3')
+        os.remove(path + '/no_vocals.mp3')
+        os.rmdir(path)
 
     return vocalString, nonVocalString
 
 async def getSongInfo(path):
+    print(path)
     async def getSongName():
         shazam = Shazam()
         try:
@@ -109,7 +96,9 @@ async def getSongInfo(path):
 
 async def convertSong(song):
     splitAudio(song)
-    vocals, nonVocals = readSeparatedAudio()
+    path = 'separated/' + DEMUCS_MODEL_NAME
+    songPath = path + '/' + os.listdir(path)[0]
+    vocals, nonVocals = readSeparatedAudio(songPath, True)
     songName, songLyrics = await getSongInfo(song)
     os.remove(song)
 
@@ -139,6 +128,25 @@ def getLatestSong():
     if isFinishedConverting:
         convertedSongs = []
     return numSongsConverted, latestSong
+
+async def getExampleSong(songPath, song):
+    vocals, nonVocals = readSeparatedAudio(songPath, False)
+    songName, songLyrics = await getSongInfo(songPath + song)
+
+    return {
+        'vocals': vocals,
+        'no_vocals': nonVocals,
+        'name': songName,
+        'lyrics': songLyrics
+    }
+
+async def convertExamplePlaylist():
+    global isFinishedConverting
+    isFinishedConverting = False
+    for path in os.listdir(EXAMPLE_PLAYLIST_PATH):
+        convertedSongs.append(await getExampleSong(EXAMPLE_PLAYLIST_PATH + path + '/', 'audio.mp3'))
+        time.sleep(10)
+    isFinishedConverting = True
 
 @csrf_exempt
 async def handleFileUpload(request):
@@ -176,6 +184,27 @@ async def handlePlaylistCheck(request):
     numSongs, latestSong = getLatestSong()
     response_data = {
         'response_type': 'playlist',
+        'song_number': numSongs,
+        'song_data': latestSong
+    }
+    return JsonResponse(response_data)
+
+
+@csrf_exempt
+async def handleExampleFile(request):
+    response_data = {
+        'response_type': 'single',
+        'song_data': await getExampleSong(EXAMPLE_PATH, 'audio.mp3')
+    }
+    return JsonResponse(response_data)
+
+@csrf_exempt
+async def handleExamplePlaylist(request):
+    await convertExamplePlaylist()
+
+    numSongs, latestSong = getLatestSong()
+    response_data = {
+        'response_type': 'playlist_finished',
         'song_number': numSongs,
         'song_data': latestSong
     }

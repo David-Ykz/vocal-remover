@@ -64,6 +64,9 @@ const UploadForm = ({onServerResponse, setIsStillProcessing, startCheckingFuncti
         setDisplayUploadPrompt(true);
         const url = 'http://localhost:8000/api/example_' + mode;
         try {
+            if (mode === "playlist") {
+                startCheckingFunction();
+            }
             const response = await axios.get(url);
             console.log(response.data);
             onServerResponse(response.data);
