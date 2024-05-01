@@ -85,6 +85,9 @@ const App = () => {
             keepPolling = false;
     //        setRerenderToggle(!rerenderToggle);
             console.log('after setting: ' + isStillProcessing);
+        } else if (response.response_type === "busy") {
+            keepPolling = false;
+            window.alert("The server is currently processing another song. Please try again later")
         }
     }
 

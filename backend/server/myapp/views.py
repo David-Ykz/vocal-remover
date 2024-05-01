@@ -150,6 +150,14 @@ async def convertExamplePlaylist():
 
 @csrf_exempt
 async def handleFileUpload(request):
+    global isFinishedConverting
+    if not isFinishedConverting:
+        response_data = {
+            'response_type': 'busy',
+        }
+        return JsonResponse(response_data)
+
+    isFinishedConverting = False
     audioFile = request.FILES['file']
     saveAudio(audioFile)
 
@@ -157,10 +165,20 @@ async def handleFileUpload(request):
         'response_type': 'single',
         'song_data': await convertSong('audio.mp3')
     }
+
+    isFinishedConverting = True
+
     return JsonResponse(response_data)
 
 @csrf_exempt
 async def handlePlaylistUpload(request):
+    global isFinishedConverting
+    if not isFinishedConverting:
+        response_data = {
+            'response_type': 'busy',
+        }
+        return JsonResponse(response_data)
+
     playlistLink = request.POST['link']
     downloadPlaylist(playlistLink)
     await convertPlaylist()
@@ -192,6 +210,13 @@ async def handlePlaylistCheck(request):
 
 @csrf_exempt
 async def handleExampleFile(request):
+    global isFinishedConverting
+    if not isFinishedConverting:
+        response_data = {
+            'response_type': 'busy',
+        }
+        return JsonResponse(response_data)
+
     response_data = {
         'response_type': 'single',
         'song_data': await getExampleSong(EXAMPLE_PATH, 'audio.mp3')
@@ -200,6 +225,13 @@ async def handleExampleFile(request):
 
 @csrf_exempt
 async def handleExamplePlaylist(request):
+    global isFinishedConverting
+    if not isFinishedConverting:
+        response_data = {
+            'response_type': 'busy',
+        }
+        return JsonResponse(response_data)
+
     await convertExamplePlaylist()
 
     numSongs, latestSong = getLatestSong()
@@ -209,33 +241,3 @@ async def handleExamplePlaylist(request):
         'song_data': latestSong
     }
     return JsonResponse(response_data)
-
-
-
-# @csrf_exempt
-# async def exampleSingleFile(request):
-#     path = 'Example/Paradise/'
-#     songName = await getSongName(path + 'audio.mp3')
-#     songLyrics = getSongLyrics(songName)
-#
-#     response_data = {
-#         'response_type': 'single',
-#         'vocals': readAudioToString(path + 'vocals.mp3'),
-#         'no_vocals': readAudioToString(path + 'no_vocals.mp3'),
-#         'name': songName,
-#         'lyrics': songLyrics
-#     }
-#     return JsonResponse(response_data)
-#
-# @csrf_exempt
-# async def examplePlaylist(request):
-#     vocals, nonVocals, songNames, songLyrics = await convertExamplePlaylist()
-#     response_data = {
-#         'response_type': 'playlist',
-#         'vocals': vocals,
-#         'no_vocals': nonVocals,
-#         'names': songNames,
-#         'lyrics': songLyrics
-#     }
-#     return JsonResponse(response_data)
-
