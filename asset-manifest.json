@@ -1,0 +1,10 @@
+{
+  "files": {
+    "main.js": "/vocal-remover/static/js/main.dc5ec8be.js",
+    "index.html": "/vocal-remover/index.html",
+    "main.dc5ec8be.js.map": "/vocal-remover/static/js/main.dc5ec8be.js.map"
+  },
+  "entrypoints": [
+    "static/js/main.dc5ec8be.js"
+  ]
+}
