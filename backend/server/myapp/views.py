@@ -11,7 +11,7 @@ from shazamio import Shazam
 from lyricsgenius import Genius
 import spotube
 
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
 load_dotenv()
@@ -50,7 +50,8 @@ def splitAudio(path):
     saveFileSize()
 
     start = time.time()
-    demucs.separate.main(['--mp3', '--two-stems', 'vocals', '-n', 'mdx_extra', '--overlap', '0.1', path])
+    os.system("demucs --mp3 --two-stems=vocals -n mdx_extra --overlap=0.1 \"" + path + "\"")
+#    demucs.separate.main(['--mp3', '--two-stems', 'vocals', '-n', 'mdx_extra', '--overlap', '0.1', path])
     end = time.time()
     print("time taken to split audio: " + str(end - start))
 
